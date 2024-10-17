@@ -109,3 +109,89 @@ header h1 {
     width: 10em;
 }
 
+/* Container for recipe cards */
+.recipe-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    background-color: #EDEDED;
+    padding-top: 20px;
+    justify-content: center;
+    align-items: start;
+    max-width: 80%;
+    margin: 0 auto;
+}
+
+/* Style for individual recipe card */
+.recipe-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    min-height: 731px;
+    overflow: hidden;
+    position: relative; /* Important for proper positioning of absolute elements */
+    transition: transform 0.3s;
+}
+
+.recipe-card:hover {
+    transform: translateY(-10px);
+}
+
+/* Recipe image */
+.recipe-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Time label on image (permanently visible) */
+.recipe-time {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #FFD15B; /* Darker for better visibility */
+    border-radius: 14px;
+    padding: 5px 10px;
+    font-weight: bold;
+    color: #fff; /* White text for contrast */
+    font-size: 0.9rem;
+    z-index: 10; 
+}
+
+/* Recipe card content */
+.recipe-info {
+    padding: 25px;
+}
+
+.recipe-card h2 {
+    font-size: 18px;
+    font-weight: 400;
+    color: black;
+    margin-bottom: 10px;
+    margin-left: 25px;
+    margin-top: 25px;
+}
+
+.recipe-card p {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+/* Recipe ingredients in a grid layout */
+.recipe-card .recipe-ingredients {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    list-style-type: none;
+    color: #333;
+    padding: 0;
+    gap: 10px;
+}
+
+.recipe-card .recipe-ingredients li {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
