@@ -31,7 +31,7 @@ header {
 .background-img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* S'adapte à la taille de l'en-tête */
+    object-fit: cover;
 }
 
 .logo {
@@ -47,7 +47,7 @@ header {
 .title {
     width: 100%;
     align-items: center;
-    margin-top: 10em;
+    margin-top: 14em;
 
 }
 
@@ -67,19 +67,45 @@ header h1 {
 }
 
 .search-bar input {
-    padding: 10px;
+    padding: 20px;
     width: 60%;
-    border-radius: 5px;
+    border-radius: 10px;
     border: none;
     font-size: 1.2em;
 }
 
 .search-bar button {
     padding: 10px;
-    margin-left: 10px;
     border-radius: 5px;
     border: none;
-    background-color: #ffcc00;
+    background-color: black;
     cursor: pointer;
     font-size: 1.2em;
+    margin-left: -2.5em;
 }
+
+.search-bar i {
+    color: white;
+}
+
+.filters {
+    display: flex;
+    justify-content: flex-start;
+    background-color: #EDEDED;
+    padding: 20px;
+    gap: 5em;
+
+}
+
+.filter {
+    margin-left: 2em;
+   
+}
+
+.filter select {
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    width: 10em;
+}
+
