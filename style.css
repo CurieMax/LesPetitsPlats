@@ -88,6 +88,11 @@ header h1 {
     color: white;
 }
 
+main {
+    background-color: #EDEDED;
+
+}
+
 .filters {
     display: flex;
     justify-content: flex-start;
@@ -113,7 +118,7 @@ header h1 {
 .recipe-section {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    gap: 58px;
     background-color: #EDEDED;
     padding-top: 20px;
     justify-content: center;
@@ -124,10 +129,12 @@ header h1 {
 
 /* Style for individual recipe card */
 .recipe-card {
+    display: flex;
+    flex-direction: column;
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    width: 380px;
     min-height: 731px;
     overflow: hidden;
     position: relative; /* Important for proper positioning of absolute elements */
