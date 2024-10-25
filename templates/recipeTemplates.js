@@ -22,9 +22,11 @@ export function recipeTemplate(data) {
         // Informations sur la recette
         const recipeInfo = document.createElement('div');
         recipeInfo.className = 'recipe-info';
-        
-        const recipeServings = document.createElement('p');
-        recipeServings.textContent = `${servings} personnes`;
+
+        const recipeName = document.createElement('h3');
+        recipeName.textContent = 'Recette';
+
+        recipeInfo.appendChild(recipeName);
 
         const recipeTime = document.createElement('p');
         recipeTime.textContent = `${time} min`;
@@ -37,14 +39,24 @@ export function recipeTemplate(data) {
         // Liste des ingrédients
         const recipeIngredients = document.createElement('ul');
         recipeIngredients.className = 'recipe-ingredients';
+
+        const ingredientsTitle = document.createElement('h3');
+        ingredientsTitle.textContent = 'Ingrédients';
+        recipeIngredients.appendChild(ingredientsTitle);
+
+        const ingredientsContainer = document.createElement('div');
+        ingredientsContainer.className = 'ingredients-container';
+
+        // Ajout des ingrédients à la liste
         ingredients.forEach(ingredient => {
             const listItem = document.createElement('li');
-            listItem.textContent = `${ingredient.ingredient}: ${ingredient.quantity || ''} ${ingredient.unit || ''}`;
-            recipeIngredients.appendChild(listItem);
+            listItem.innerHTML = `<strong>${ingredient.ingredient}</strong> <br> ${ingredient.quantity || ''} ${ingredient.unit || ''}`;
+            ingredientsContainer.appendChild(listItem);
         });
 
+        recipeIngredients.appendChild(ingredientsContainer);
+
         // Ajout des éléments à la carte
-        recipeInfo.appendChild(recipeServings);
         recipeInfo.appendChild(recipeTime);
         recipeInfo.appendChild(recipeDescription);
         recipeInfo.appendChild(recipeIngredients);

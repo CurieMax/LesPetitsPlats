@@ -32,13 +32,11 @@ async function displayRecipes(recipes) {
  * a recipe search based on the entered keyword.
  */
 function initSearch() {
-  const searchInput = document.querySelector(".search-bar input"); // Sélection de la barre de recherche
+  const searchInput = document.querySelector(".search-bar input");
 
-  // Ajouter un écouteur d'événements pour la saisie dans la barre de recherche
   searchInput.addEventListener("input", async (event) => {
     const keyword = event.target.value;
 
-    // Si le mot-clé a 3 caractères ou plus, effectuer la recherche
     if (keyword.length >= 3) {
       const filteredRecipes = await searchRecipes(keyword); // Rechercher avec le mot-clé
       displayRecipes(filteredRecipes); // Afficher les recettes filtrées
