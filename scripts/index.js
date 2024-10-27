@@ -1,6 +1,7 @@
 import { recipeTemplate } from "../templates/recipeTemplates.js";
 import { searchRecipes } from "../scripts/algo-array.js";
 import { getRecipes } from "../scripts/api.js";
+import { recipeFilters } from "./filter.js";
 
 
 
@@ -10,7 +11,7 @@ import { getRecipes } from "../scripts/api.js";
  * 
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
-async function displayRecipes(recipes) {
+export async function displayRecipes(recipes) {
   const recipeSection = document.querySelector(".recipe-section");
 
   // Vider la section avant d'ajouter les nouvelles recettes
@@ -60,6 +61,7 @@ async function init() {
   const recipes = await getRecipes(); // Récupérer toutes les recettes au démarrage
   displayRecipes(recipes); // Afficher toutes les recettes au démarrage
   initSearch(); // Initialiser l'écouteur d'événements de la barre de recherche
+  recipeFilters();
 }
 
 init(); // Démarrage de l'application
