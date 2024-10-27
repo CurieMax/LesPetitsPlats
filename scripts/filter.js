@@ -60,6 +60,15 @@ export async function recipeFilters() {
     utensilSelect.addEventListener('change', () => filterRecipes(recipes));
 
 
+
+/**
+ * Filters the list of recipes based on the selected ingredient, appliance, and utensil.
+ * Retrieves the selected values from the DOM elements and returns only those recipes
+ * that match all the selected criteria. Calls the displayRecipes function to update
+ * the display with the filtered recipes.
+ * 
+ * @param {Array} recipes - An array of recipe objects to be filtered.
+ */
     function filterRecipes(recipes) {
         const selectedIngredient = document.getElementById('ingredients').value;
         const selectedAppliance = document.getElementById('appareils').value;

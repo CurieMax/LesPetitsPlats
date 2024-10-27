@@ -1,68 +1,87 @@
+/**
+ * Generates a recipe card element based on provided data.
+ * Extracts and uses recipe details such as image, name, servings, ingredients, time, and description
+ * to create an HTML structure. Returns the constructed recipe card element for rendering in the DOM.
+ *
+ * @param {Object} data - An object containing recipe details.
+ * @param {string} data.image - The image filename for the recipe.
+ * @param {string} data.name - The name of the recipe.
+ * @param {number} data.servings - The number of servings the recipe provides.
+ * @param {Array} data.ingredients - An array of ingredient objects.
+ * @param {number} [data.ingredients[].quantity] - The quantity of the ingredient.
+ * @param {string} [data.ingredients[].unit] - The unit of measurement for the ingredient.
+ * @param {number} data.time - The preparation time for the recipe in minutes.
+ * @param {string} data.description - A brief description of the recipe.
+ * @returns {HTMLElement} The constructed recipe card element.
+ */
+
 export function recipeTemplate(data) {
-    const {image, name, servings, ingredients, time, description} = data;
+  const { image, name, servings, ingredients, time, description } = data;
 
-    const picture = `assets/JSON-recipes/${image}`;
+  const picture = `assets/JSON-recipes/${image}`;
 
-    function getRecipeCard() {
-        const recipeCard = document.createElement('article');
-        recipeCard.className = 'recipe-card';
-        
-        // Image de la recette
-        const recipeImg = document.createElement('img');
-        recipeImg.className = 'recipe-img';
-        recipeImg.setAttribute('src', picture);
-        recipeImg.setAttribute('alt', name);
-        recipeCard.appendChild(recipeImg);
+  /**
+   * Generates a recipe card element based on provided data.
+   * Extracts and uses recipe details such as image, name, servings, ingredients, time, and description
+   * to create an HTML structure. Returns the constructed recipe card element for rendering in the DOM.
+   *
+   * @returns {HTMLElement} The constructed recipe card element.
+   */
+  function getRecipeCard() {
+    const recipeCard = document.createElement("article");
+    recipeCard.className = "recipe-card";
 
-        // Titre de la recette
-        const recipeTitle = document.createElement('h2');
-        recipeTitle.textContent = name;
-        recipeCard.appendChild(recipeTitle);
+    const recipeImg = document.createElement("img");
+    recipeImg.className = "recipe-img";
+    recipeImg.setAttribute("src", picture);
+    recipeImg.setAttribute("alt", name);
+    recipeCard.appendChild(recipeImg);
 
-        // Informations sur la recette
-        const recipeInfo = document.createElement('div');
-        recipeInfo.className = 'recipe-info';
+    const recipeTitle = document.createElement("h2");
+    recipeTitle.textContent = name;
+    recipeCard.appendChild(recipeTitle);
 
-        const recipeName = document.createElement('h3');
-        recipeName.textContent = 'Recette';
+    const recipeInfo = document.createElement("div");
+    recipeInfo.className = "recipe-info";
 
-        recipeInfo.appendChild(recipeName);
+    const recipeName = document.createElement("h3");
+    recipeName.textContent = "Recette";
 
-        const recipeTime = document.createElement('p');
-        recipeTime.textContent = `${time} min`;
-        recipeTime.className = 'recipe-time';
+    recipeInfo.appendChild(recipeName);
 
-        const recipeDescription = document.createElement('p');
-        recipeDescription.textContent = description;
+    const recipeTime = document.createElement("p");
+    recipeTime.textContent = `${time} min`;
+    recipeTime.className = "recipe-time";
 
+    const recipeDescription = document.createElement("p");
+    recipeDescription.textContent = description;
 
-        // Liste des ingrédients
-        const recipeIngredients = document.createElement('ul');
-        recipeIngredients.className = 'recipe-ingredients';
+    const recipeIngredients = document.createElement("ul");
+    recipeIngredients.className = "recipe-ingredients";
 
-        const ingredientsTitle = document.createElement('h3');
-        ingredientsTitle.textContent = 'Ingrédients';
-        recipeIngredients.appendChild(ingredientsTitle);
+    const ingredientsTitle = document.createElement("h3");
+    ingredientsTitle.textContent = "Ingrédients";
+    recipeIngredients.appendChild(ingredientsTitle);
 
-        const ingredientsContainer = document.createElement('div');
-        ingredientsContainer.className = 'ingredients-container';
+    const ingredientsContainer = document.createElement("div");
+    ingredientsContainer.className = "ingredients-container";
 
-        // Ajout des ingrédients à la liste
-        ingredients.forEach(ingredient => {
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `<strong>${ingredient.ingredient}</strong> <br> ${ingredient.quantity || ''} ${ingredient.unit || ''}`;
-            ingredientsContainer.appendChild(listItem);
-        });
+    ingredients.forEach((ingredient) => {
+      const listItem = document.createElement("li");
+      listItem.innerHTML = `<strong>${ingredient.ingredient}</strong> <br> ${
+        ingredient.quantity || ""
+      } ${ingredient.unit || ""}`;
+      ingredientsContainer.appendChild(listItem);
+    });
 
-        recipeIngredients.appendChild(ingredientsContainer);
+    recipeIngredients.appendChild(ingredientsContainer);
 
-        // Ajout des éléments à la carte
-        recipeInfo.appendChild(recipeTime);
-        recipeInfo.appendChild(recipeDescription);
-        recipeInfo.appendChild(recipeIngredients);
-        recipeCard.appendChild(recipeInfo);
+    recipeInfo.appendChild(recipeTime);
+    recipeInfo.appendChild(recipeDescription);
+    recipeInfo.appendChild(recipeIngredients);
+    recipeCard.appendChild(recipeInfo);
 
-        return recipeCard;
-    }
-    return getRecipeCard();
+    return recipeCard;
+  }
+  return getRecipeCard();
 }
