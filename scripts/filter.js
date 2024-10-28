@@ -10,7 +10,6 @@ import { displayRecipes } from "./index.js";
  * @returns {Promise<void>}
  */
 export async function recipeFilters() {
-    const filterSearch = document.querySelectorAll('.filter-select')
 
     const recipes = await getRecipes();
 

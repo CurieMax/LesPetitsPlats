@@ -27,24 +27,28 @@ export async function displayRecipes(recipes) {
 
 
 
+
+
 /**
- * Function to initialize the search functionality.
- * It adds an event listener to the search input field to trigger
- * a recipe search based on the entered keyword.
+ * Initialise l'écouteur d'événements de la barre de recherche.
+ * Lorsque le champ de recherche est modifié, filtre les recettes
+ * correspondantes en fonction de la valeur du champ de recherche.
+ * Si la longueur de la valeur du champ de recherche est supérieure
+ * ou égale à 3, affiche les recettes filtrées. Sinon, affiche
+ * toutes les recettes.
+ * @param {Object[]} recipes - Tableau d'objets recettes
  */
-function initSearch() {
+function initSearch(recipes) {
   const searchInput = document.querySelector(".search-bar input");
 
-  searchInput.addEventListener("input", async (event) => {
+  searchInput.addEventListener("input", (event) => {
     const keyword = event.target.value;
 
     if (keyword.length >= 3) {
-      const filteredRecipes = await searchRecipes(keyword); // Rechercher avec le mot-clé
-      displayRecipes(filteredRecipes); // Afficher les recettes filtrées
+      const filteredRecipes = searchRecipes(keyword, recipes);
+      displayRecipes(filteredRecipes);
     } else {
-      // Si le mot-clé a moins de 3 caractères, afficher toutes les recettes
-      const allRecipes = await getRecipes();
-      displayRecipes(allRecipes); // Afficher toutes les recettes
+      displayRecipes(recipes);
     }
   });
 }
@@ -58,10 +62,10 @@ function initSearch() {
  * puis initialise l'écouteur d'événements de la barre de recherche.
  */
 async function init() {
-  const recipes = await getRecipes(); // Récupérer toutes les recettes au démarrage
-  displayRecipes(recipes); // Afficher toutes les recettes au démarrage
-  initSearch(); // Initialiser l'écouteur d'événements de la barre de recherche
+  const recipes = await getRecipes(); 
+  displayRecipes(recipes); 
+  initSearch(recipes); 
   recipeFilters();
 }
 
-init(); // Démarrage de l'application
+init(); 

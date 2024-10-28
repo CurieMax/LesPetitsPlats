@@ -1,13 +1,10 @@
-import { getRecipes } from "./api.js";
-
 /**
- * Recherche des recettes par nom ou ingrédient.
+ * Recherche des recettes par nom ou ingrédient dans un tableau donné.
  * @param {string} keyword - Le mot-clé de recherche.
- * @returns {Promise<Recipe[]>} - La liste des recettes correspondantes.
+ * @param {Recipe[]} recipes - Le tableau des recettes à filtrer.
+ * @returns {Recipe[]} - La liste des recettes correspondantes.
  */
-export async function searchRecipes(keyword) {
-    const recipes = await getRecipes();
-
+export function searchRecipes(keyword, recipes) {
     return recipes.filter(recipe => {
         const nameMatch = recipe.name.toLowerCase().includes(keyword.toLowerCase());
 
