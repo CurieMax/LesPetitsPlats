@@ -12,6 +12,8 @@ export function searchRecipes(keyword, recipes) {
             ingredient.ingredient.toLowerCase().includes(keyword.toLowerCase())
         );
 
-        return nameMatch || ingredientMatch;
+        const descriptionMatch = recipe.description.toLowerCase().includes(keyword.toLowerCase());
+
+        return nameMatch || ingredientMatch || descriptionMatch;
     });
 }
