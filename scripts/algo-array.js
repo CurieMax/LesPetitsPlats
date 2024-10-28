@@ -6,12 +6,6 @@
  */
 export function searchRecipes(keyword, recipes) {
     return recipes.filter(recipe => {
-        const nameMatch = recipe.name.toLowerCase().includes(keyword.toLowerCase());
-
-        const ingredientMatch = recipe.ingredients.some(ingredient =>
-            ingredient.ingredient.toLowerCase().includes(keyword.toLowerCase())
-        );
-
-        return nameMatch || ingredientMatch;
+        
     });
 }
