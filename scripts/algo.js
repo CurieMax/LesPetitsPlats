@@ -6,33 +6,30 @@
  * @returns {object[]} Tableau de recettes qui contiennent le mot-clé
  */
 export function searchRecipes(keyword, recipes) {
-    // Initialisation du mot-clé en minuscule pour simplifier les comparaisons
-    const lowerCaseKeyword = keyword.toLowerCase();
+  const lowerCaseKeyword = keyword.toLowerCase();
 
-    return recipes.filter(recipe => {
-        // Vérification de la correspondance dans le nom
-        const nameMatch = recipe.name.toLowerCase().includes(lowerCaseKeyword);
-        
-        // Vérification de la correspondance dans les ingrédients
-        const ingredientMatch = recipe.ingredients.some(ingredient =>
-            ingredient.ingredient.toLowerCase().includes(lowerCaseKeyword)
-        );
+  return recipes.filter(recipe => {
+      // Vérification de la correspondance dans le nom
+      if (recipe.name.toLowerCase().includes(lowerCaseKeyword)) {
+          console.log(`Correspondance trouvée dans le nom pour le mot-clé: ${keyword}`);
+          return true;
+      }
 
-        // Vérification de la correspondance dans la description
-        const descriptionMatch = recipe.description.toLowerCase().includes(lowerCaseKeyword);
+      // Vérification de la correspondance dans les ingrédients
+      if (recipe.ingredients.some(ingredient =>
+          ingredient.ingredient.toLowerCase().includes(lowerCaseKeyword)
+      )) {
+          console.log(`Correspondance trouvée dans les ingrédients pour le mot-clé: ${keyword}`);
+          return true;
+      }
 
-        // Vérification et retour selon les correspondances trouvées
-        if (nameMatch) {
-            console.log(`Correspondance trouvée dans le nom pour le mot-clé: ${keyword}`);
-        }
-        if (ingredientMatch) {
-            console.log(`Correspondance trouvée dans les ingrédients pour le mot-clé: ${keyword}`);
-        }
-        if (descriptionMatch) {
-            console.log(`Correspondance trouvée dans la description pour le mot-clé: ${keyword}`);
-        }
+      // Vérification de la correspondance dans la description
+      if (recipe.description.toLowerCase().includes(lowerCaseKeyword)) {
+          console.log(`Correspondance trouvée dans la description pour le mot-clé: ${keyword}`);
+          return true;
+      }
 
-        // Retourne vrai si une des correspondances est trouvée
-        return nameMatch || ingredientMatch || descriptionMatch;
-    });
+      // Retourne faux si aucune correspondance n'est trouvée
+      return false;
+  });
 }

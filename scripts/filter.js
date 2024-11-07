@@ -69,21 +69,59 @@ export async function recipeFilters() {
  * @param {Array} recipes - An array of recipe objects to be filtered.
  */
     function filterRecipes(recipes) {
-        const selectedIngredient = document.getElementById('ingredients').value;
+        const selectedIngredients = Array.from(document.querySelectorAll('#ingredients option:checked')).map(option => option.value);
         const selectedAppliance = document.getElementById('appareils').value;
         const selectedUtensil = document.getElementById('ustensiles').value;
     
         const filteredRecipes = recipes.filter(recipe => {
-            const hasIngredient = selectedIngredient === "" || recipe.ingredients.some(item => item.ingredient === selectedIngredient);
+            // Vérifie si la recette contient tous les ingrédients sélectionnés
+            const hasAllIngredients = selectedIngredients.length === 0 || selectedIngredients.every(ingredient =>
+                recipe.ingredients.some(item => item.ingredient === ingredient)
+            );
             const hasAppliance = selectedAppliance === "" || recipe.appliance === selectedAppliance;
             const hasUtensil = selectedUtensil === "" || recipe.ustensils.includes(selectedUtensil);
     
-            return hasIngredient && hasAppliance && hasUtensil;
+            return hasAllIngredients && hasAppliance && hasUtensil;
         });
     
         displayRecipes(filteredRecipes);
     }
 
-   
+    const ingredientsSelect = document.getElementById('ingredients');
+    const tagContainer = document.getElementById('ingredient-tags');
+    
+    ingredientsSelect.addEventListener('change', () => {
+        updateIngredientTags();
+        filterRecipes(recipes); // Appeler la fonction de filtrage des recettes
+    });
+    
+
+function updateIngredientTags() {
+    tagContainer.innerHTML = '';
+
+    Array.from(ingredientSelect.selectedOptions).forEach(option => {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = option.value;
+
+        // Bouton de suppression
+        const removeBtn = document.createElement('span');
+        removeBtn.className = 'remove-btn';
+        removeBtn.textContent = '×';
+
+        // Ajoute un écouteur d'événement de clic au bouton de suppression
+        removeBtn.addEventListener('click', () => {
+            option.selected = false; // Désélectionne l'option dans le menu déroulant
+            updateIngredientTags(); // Met à jour l'affichage des tags
+            if (typeof filterRecipes === "function") {
+                filterRecipes(recipes); // Met à jour la liste des recettes
+            }
+        });
+
+        // Ajout bouton de suppression au tag
+        tag.appendChild(removeBtn);
+        tagContainer.appendChild(tag);
+    });
+}
 }
 
