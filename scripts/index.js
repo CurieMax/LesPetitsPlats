@@ -1,5 +1,5 @@
 import { recipeTemplate } from "../templates/recipeTemplates.js";
-import { searchRecipes } from "./algo-for.js";
+import { searchRecipes } from "./algo.js";
 import { getRecipes } from "../scripts/api.js";
 import { recipeFilters } from "./filter.js";
 
