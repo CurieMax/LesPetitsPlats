@@ -140,9 +140,10 @@ main {
 
 
 .tag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   background-color: #FFD15B;
-  border-radius: 5px;
+  border-radius: 10px;
   padding: 17px 18px;
   margin-left: 5em;
   cursor: pointer;
