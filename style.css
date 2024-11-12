@@ -139,6 +139,28 @@ main {
 }
 
 
+.tag {
+  display: inline-block;
+  background-color: #FFD15B;
+  border-radius: 5px;
+  padding: 17px 18px;
+  margin-left: 5em;
+  cursor: pointer;
+}
+.tag .remove-btn {
+  margin-left: 8px;
+  color: black;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.fa-circle-xmark {
+  color: black;
+  cursor: pointer;
+  z-index: 2;
+  margin-left: 10px;
+}
+
 /* Container for recipe cards */
 .recipe-section {
   display: grid;
