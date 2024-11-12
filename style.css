@@ -138,24 +138,6 @@ main {
   padding: 17px 16px;
 }
 
-#ingredient-tags {
-  overflow: hidden;
-}
-
-.tag {
-  display: inline-block;
-  background-color: #FFD15B;
-  border-radius: 5px;
-  padding: 5px 10px;
-  margin: 5px;
-  cursor: pointer;
-}
-.tag .remove-btn {
-  margin-left: 8px;
-  color: black;
-  cursor: pointer;
-  z-index: 2;
-}
 
 /* Container for recipe cards */
 .recipe-section {

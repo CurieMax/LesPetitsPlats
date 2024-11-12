@@ -8,28 +8,23 @@
 export function searchRecipes(keyword, recipes) {
   const lowerCaseKeyword = keyword.toLowerCase();
 
-  return recipes.filter(recipe => {
-      // Vérification de la correspondance dans le nom
-      if (recipe.name.toLowerCase().includes(lowerCaseKeyword)) {
-          console.log(`Correspondance trouvée dans le nom pour le mot-clé: ${keyword}`);
-          return true;
-      }
+  return recipes.filter((recipe) => {
+    if (recipe.name.toLowerCase().includes(lowerCaseKeyword)) {
+      return true;
+    }
 
-      // Vérification de la correspondance dans les ingrédients
-      if (recipe.ingredients.some(ingredient =>
-          ingredient.ingredient.toLowerCase().includes(lowerCaseKeyword)
-      )) {
-          console.log(`Correspondance trouvée dans les ingrédients pour le mot-clé: ${keyword}`);
-          return true;
-      }
+    if (
+      recipe.ingredients.some((ingredient) =>
+        ingredient.ingredient.toLowerCase().includes(lowerCaseKeyword)
+      )
+    ) {
+      return true;
+    }
 
-      // Vérification de la correspondance dans la description
-      if (recipe.description.toLowerCase().includes(lowerCaseKeyword)) {
-          console.log(`Correspondance trouvée dans la description pour le mot-clé: ${keyword}`);
-          return true;
-      }
+    if (recipe.description.toLowerCase().includes(lowerCaseKeyword)) {
+      return true;
+    }
 
-      // Retourne faux si aucune correspondance n'est trouvée
-      return false;
+    return false;
   });
 }
