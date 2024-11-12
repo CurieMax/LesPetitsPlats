@@ -53,6 +53,18 @@ export async function recipeFilters() {
   applianceSelect.addEventListener("change", () => filterRecipes(recipes));
   utensilSelect.addEventListener("change", () => filterRecipes(recipes));
 
+
+
+  const ingredientsSelect = document.getElementById("ingredients");
+
+  ingredientsSelect.addEventListener("change", () => {
+    updateIngredientTags();
+    filterRecipes(recipes);
+  });
+
+  
+}
+
   /**
    * Filters the list of recipes based on the selected ingredient, appliance, and utensil.
    * Retrieves the selected values from the DOM elements and returns only those recipes
@@ -63,7 +75,7 @@ export async function recipeFilters() {
    */
   function filterRecipes(recipes) {
     const selectedIngredients = Array.from(
-      document.querySelectorAll("#ingredients option:checked")
+      document.querySelectorAll("#ingredients")
     ).map((option) => option.value);
     const selectedAppliance = document.getElementById("appareils").value;
     const selectedUtensil = document.getElementById("ustensiles").value;
@@ -86,19 +98,14 @@ export async function recipeFilters() {
     displayRecipes(filteredRecipes);
   }
 
-  const ingredientsSelect = document.getElementById("ingredients");
-  const tagContainer = document.getElementById("ingredient-tags");
+  
 
-  ingredientsSelect.addEventListener("change", () => {
-    updateIngredientTags();
-    filterRecipes(recipes);
-  });
-
-  function updateIngredientTags() {
+function updateIngredientTags() {
+    const tagContainer = document.getElementById("ingredient-tags")
+    const ingredientsSelect = document.getElementById("ingredients");
     tagContainer.innerHTML = "";
-    const ingredientTags=document.getElementById("ingredient-tags");
 
-    Array.from(ingredientSelect.selectedOptions).forEach((option) => {
+    Array.from(ingredientsSelect.selectedOptions).forEach((option) => {
       const tag = document.createElement("span");
       tag.className = "tag";
       tag.textContent = option.value;
@@ -106,20 +113,13 @@ export async function recipeFilters() {
       const removeBtn = document.createElement("i");
       removeBtn.className = "fa-solid fa-circle-xmark";
 
-      ingredientTags.style.display = "block";
-      
-
       removeBtn.addEventListener("click", () => {
         option.selected = false;
-        ingredientTags.style.display = "none";
-        updateIngredientTags();
-        if (typeof filterRecipes === "function") {
-          filterRecipes(recipes);
-        }
+        tagContainer.removeChild(tag);
+        filterRecipes(recipes);
       });
 
       tag.appendChild(removeBtn);
       tagContainer.appendChild(tag);
     });
   }
-}
