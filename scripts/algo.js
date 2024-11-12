@@ -1,4 +1,3 @@
-
 /**
  * Recherche des recettes qui contiennent le mot-clé dans le nom, les ingrédients ou la description.
  * La fonction renvoie un tableau de recettes qui contiennent le mot-clé.
@@ -8,26 +7,24 @@
  */
 export function searchRecipes(keyword, recipes) {
     const lowerCaseKeyword = keyword.toLowerCase();
-
-    return recipes.filter(recipe => {
-        const nameMatch = recipe.name.toLowerCase().includes(lowerCaseKeyword);
-        
-        const ingredientMatch = recipe.ingredients.some(ingredient =>
-            ingredient.ingredient.toLowerCase().includes(lowerCaseKeyword)
-        );
-
-        const descriptionMatch = recipe.description.toLowerCase().includes(lowerCaseKeyword);
-
-        if (nameMatch) {
-            console.log(`Correspondance trouvée dans le nom pour le mot-clé: ${keyword}`);
-        }
-        if (ingredientMatch) {
-            console.log(`Correspondance trouvée dans les ingrédients pour le mot-clé: ${keyword}`);
-        }
-        if (descriptionMatch) {
-            console.log(`Correspondance trouvée dans la description pour le mot-clé: ${keyword}`);
-        }
-
-        return nameMatch || ingredientMatch || descriptionMatch;
+  
+    return recipes.filter((recipe) => {
+      if (recipe.name.toLowerCase().includes(lowerCaseKeyword)) {
+        return true;
+      }
+  
+      if (
+        recipe.ingredients.some((ingredient) =>
+          ingredient.ingredient.toLowerCase().includes(lowerCaseKeyword)
+        )
+      ) {
+        return true;
+      }
+  
+      if (recipe.description.toLowerCase().includes(lowerCaseKeyword)) {
+        return true;
+      }
+  
+      return false;
     });
-}
+  }
