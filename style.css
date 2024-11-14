@@ -106,13 +106,14 @@ main {
 .filter-list {
   position: relative;
   font-family: Arial, sans-serif;
+  width: 250px;
 }
 
 .filter-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #f2f2f2;
+  background-color: white;
   padding: 10px;
   border-radius: 5px;
   cursor: pointer;
@@ -134,10 +135,11 @@ main {
 }
 
 .filter-search {
-  display: none;
+  display: block;
   align-items: center;
   padding: 10px;
   border-bottom: 1px solid #e0e0e0;
+  background-color: white;
 }
 
 .filter-search input {
@@ -166,6 +168,8 @@ main {
   margin: 0;
   max-height: 200px;
   overflow-y: auto;
+  background-color: white;
+  z-index: 10;
 }
 
 .ingredient-list li {

@@ -53,6 +53,7 @@ export function getUniqueIngredients(recipes) {
    */
   export function toggleDropdown() {
     const dropdown = document.getElementById("filterDropdown");
+    
     dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
   }
   
