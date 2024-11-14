@@ -97,35 +97,88 @@ main {
 
 .filters {
   display: flex;
-  justify-content: flex-start;
+  align-items: center; /* Centre les éléments verticalement */
   background-color: #ededed;
-}
-
-
-/* Filter Section */
-.filter-select {
-  z-index: 10;
-  cursor: pointer; 
-  background-color: white;
-}
-
-
-
-.filter {
-  display: inline-flex;
-  padding: 17px 16px;
-  align-items: center;
-  gap: 63px;
-}
-
-.filter select {
   padding: 10px;
-  border-radius: 10px;
-  border: none;
-  width: auto;
-  height: auto;
+  box-sizing: border-box;
 }
 
+.filter-list {
+  position: relative;
+  font-family: Arial, sans-serif;
+}
+
+.filter-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f2f2f2;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.filter-name {
+  font-size: 16px;
+}
+
+.filter-dropdown {
+  display: none;
+  position: absolute;
+  top: 45px;
+  width: 100%;
+  background-color: white;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  z-index: 10;
+}
+
+.filter-search {
+  display: none;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.filter-search input {
+  width: 100%;
+  padding: 5px;
+  font-size: 14px;
+  border: none;
+  outline: none;
+}
+
+/* Conteneur pour l'ingrédient sélectionné */
+#selectedIngredient {
+  display: none;
+  background-color: #ffd966;
+  padding: 10px;
+  margin: 10px 0;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 5px;
+}
+
+/* Liste des ingrédients */
+.ingredient-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.ingredient-list li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.ingredient-list li:hover,
+.ingredient-list li.selected {
+  background-color: #ffd966;
+}
+
+/* Style pour aligner le texte de recettes à droite */
 .filter-text {
   color: var(--Black, #1b1b1b);
   font-family: "Anton";
@@ -133,10 +186,10 @@ main {
   font-style: normal;
   font-weight: 400;
   line-height: normal;
-  position: absolute;
-  right: 2em;
-  padding: 17px 16px;
+  margin-left: auto; /* Aligne à droite */
+  padding: 0 16px;
 }
+
 
 /* Container for recipe cards */
 .recipe-section {

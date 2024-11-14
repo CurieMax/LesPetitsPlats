@@ -51,27 +51,27 @@
 
     <main>
       <section class="filters">
-        <div class="filter">
-          <label for="ingredients"></label>
-          <select class="filter-select" id="ingredients">
-            <option value="">Ingrédients</option>
-          </select>
-        </div>
-        <div class="filter">
-          <label for="appareils"></label>
-          <select class="filter-select" id="appareils">
-            <option value="">Appareils</option>
-          </select>
-        </div>
-        <div class="filter">
-          <label for="ustensiles"></label>
-          <select class="filter-select" id="ustensiles">
-            <option value="">Ustensiles</option>
-          </select>
-        </div>
+        <div class="filter-list">
+          <div class="filter-container">
+            <span class="filter-name">Ingrédients</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          
+          <div class="filter-search">
+            <input type="text" id="searchInput" placeholder="Rechercher un ingrédient"/>
+          </div>
+          
+          <!-- Conteneur pour afficher l'élément sélectionné -->
+          <div id="selectedIngredient" class="selected-ingredient"></div>
+          
+          <!-- Liste des ingrédients -->
+          <div id="filterDropdown" class="ingredient-list">
+            <ul id="ingredientList">
+              <!-- La liste des ingrédients sera générée ici -->
+            </ul>
+          </div>
         <span class="filter-text">1500 Recettes</span>
       </section>
-
       <section class="recipes">
         <div class="recipe">
           <h2></h2>

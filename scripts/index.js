@@ -1,14 +1,11 @@
 import { recipeTemplate } from "../templates/recipeTemplates.js";
 import { searchRecipes } from "./algo.js";
 import { getRecipes } from "../scripts/api.js";
-import { recipeFilters } from "./filter.js";
-
+import { displayIngredients, filterItems, getUniqueIngredients, toggleDropdown } from "./filter.js";
 
 
 /**
- * Affiche les recettes correspondantes dans la section
- * .recipe-section
- * 
+ * Affiche les recettes correspondantes dans la section .recipe-section
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
 export async function displayRecipes(recipes) {
@@ -25,17 +22,8 @@ export async function displayRecipes(recipes) {
 }
 
 
-
-
-
-
 /**
- * Initialise l'écouteur d'événements de la barre de recherche.
- * Lorsque le champ de recherche est modifié, filtre les recettes
- * correspondantes en fonction de la valeur du champ de recherche.
- * Si la longueur de la valeur du champ de recherche est supérieure
- * ou égale à 3, affiche les recettes filtrées. Sinon, affiche
- * toutes les recettes.
+ * Initialise l'écouteur d'événements de la barre de recherche pour les recettes
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
 function initSearch(recipes) {
@@ -53,19 +41,21 @@ function initSearch(recipes) {
   });
 }
 
-
-
 /**
  * Démarrage de l'application.
- *
- * Récupère toutes les recettes et les affiche,
- * puis initialise l'écouteur d'événements de la barre de recherche.
  */
 async function init() {
-  const recipes = await getRecipes(); 
-  displayRecipes(recipes); 
-  initSearch(recipes); 
-  recipeFilters();
+  const recipes = await getRecipes();
+  const ingredients = getUniqueIngredients(recipes);
+  // Stocker les recettes pour un accès global lors du filtrage par ingrédient
+  localStorage.setItem("recipesData", JSON.stringify(recipes));
+
+  displayRecipes(recipes);
+  initSearch(recipes);
+  toggleDropdown();
+  filterItems();
+  displayIngredients(ingredients);
+  getUniqueIngredients(recipes);
 }
 
-init(); 
+init();
