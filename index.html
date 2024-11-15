@@ -56,16 +56,14 @@
             <span class="filter-name">Ingrédients</span>
             <i class="fa-solid fa-chevron-down"></i>
           </div>
-          
-          
-          
+
           <!-- Conteneur pour afficher l'élément sélectionné -->
           <div id="selectedIngredient" class="selected-ingredient"></div>
-          
+
           <!-- Liste des ingrédients -->
           <div id="filterDropdown" class="ingredient-list">
             <div class="filter-search">
-              <input type="text" id="searchInput" placeholder="Rechercher un ingrédient"/>
+              <input type="text" id="searchInput" placeholder="Rechercher un ingrédient" />
               <i class="fa-solid fa-magnifying-glass"></i>
             </div>
             <ul id="ingredientList">
@@ -75,6 +73,10 @@
         </div>
         <div class="filter-text">1500 Recettes</div>
       </section>
+
+      <!-- Section pour afficher les tags d'ingrédients -->
+      <div id="ingredientTags" class="ingredient-tags"></div>
+
       <section class="recipes">
         <div class="recipe">
           <h2></h2>
@@ -84,6 +86,7 @@
 
       <div class="recipe-section"></div>
     </main>
+
     <script type="module" src="scripts/index.js"></script>
   </body>
 </html>

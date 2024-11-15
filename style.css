@@ -114,9 +114,11 @@ main {
   justify-content: space-between;
   align-items: center;
   background-color: white;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 16px 18px;
+  border-radius: 11px;
   cursor: pointer;
+  width: 230px;
+  margin-left: 3.4em;
 }
 
 .filter-name {
@@ -163,6 +165,7 @@ main {
 
 /* Liste des ingrédients */
 .ingredient-list {
+  position: absolute;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -170,6 +173,9 @@ main {
   overflow-y: auto;
   background-color: white;
   z-index: 10;
+  width: 230px;
+  margin-left: 3.4em;
+  border-radius: 0px 0px 11px 11px;
 }
 
 .ingredient-list li {
@@ -192,6 +198,33 @@ main {
   line-height: normal;
   margin-left: auto; /* Aligne à droite */
   padding: 0 16px;
+}
+
+
+/* Style pour les tags d'ingrédients */
+#ingredientTags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.ingredient-tag {
+  background-color: #ffd966;
+  border: none;
+  padding: 16px 18px;
+  margin: 5px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  margin-left: 3.9em;
+  border-radius: 11px;
+}
+
+.ingredient-tag .close-btn {
+  margin-left: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
 }
 
 
