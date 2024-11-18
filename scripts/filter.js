@@ -24,7 +24,6 @@ export function displayIngredients(ingredients) {
 
     ingredientList.innerHTML = "";
 
-    // Ajouter chaque ingrédient en tant qu'élément de liste
     ingredients.forEach((ingredient) => {
         const li = document.createElement("li");
         li.textContent = ingredient;
