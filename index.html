@@ -54,7 +54,6 @@
       <!-- Section des filtres -->
       <section class="filters">
         <!-- Filtre des ingrédients -->
-        <!-- Filtre des ingrédients -->
         <div class="filter-list">
           <div class="filter-container ingredient-filter">
             <span class="filter-name">Ingrédients</span>
@@ -95,11 +94,30 @@
             <ul id="applianceList"></ul>
           </div>
         </div>
+        <!-- Filtre des ustensiles -->
+        <div class="filter-list">
+          <div class="filter-container ustensil-filter">
+            <span class="filter-name">Ustensiles</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div id="ustensilDropdown" class="dropdown-list">
+            <div class="filter-search">
+              <input
+                type="text"
+                id="ustensilSearch"
+                placeholder="Rechercher un ustensile"
+              />
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <ul id="ustensilList"></ul>
+          </div>
+        </div>
+
         <div class="filter-text">1500 recettes</div>
       </section>
       <div id="ingredientTags" class="selected-tags"></div>
       <div id="applianceTags" class="selected-tags"></div>
-
+      <div id="ustensilTags" class="selected-tags"></div>
       <!-- Section des recettes -->
       <section class="recipes">
         <div class="recipe-section"></div>

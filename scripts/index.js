@@ -47,13 +47,14 @@ function initSearch(recipes) {
 }
 
 /**
- * Initialise les filtres pour les ingrédients et les appareils
+ * Initialise les filtres pour les ingrédients, appareils et ustensiles
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
 function initFilters(recipes) {
-  // Récupérer les listes uniques d'ingrédients et d'appareils
+  // Récupérer les listes uniques d'ingrédients, d'appareils et d'ustensiles
   const ingredients = getUniqueItems(recipes, "ingredients");
   const appliances = getUniqueItems(recipes, "appliance");
+  const ustensils = getUniqueItems(recipes, "ustensils"); // Utilise "ustensils" ici
 
   // Gérer les ingrédients
   displayItems(ingredients, "ingredientList", (ingredient) => {
@@ -74,6 +75,18 @@ function initFilters(recipes) {
     });
     filterRecipesByItems([appliance], "appliance");
   });
+
+  // Gérer les ustensiles (en vérifiant s'il existe)
+  if (ustensils.length > 0) {
+    displayItems(ustensils, "ustensilList", (ustensil) => { // Utilise "ustensilList" ici
+      addTag(ustensil, "ustensilTags", (removedUstensil) => {
+        removeTag(removedUstensil, "ustensilTags", (remainingUstensils) => {
+          filterRecipesByItems(remainingUstensils, "ustensils");
+        });
+      });
+      filterRecipesByItems([ustensil], "ustensils");
+    });
+  }
 }
 
 /**
@@ -91,23 +104,30 @@ async function init() {
   // Initialiser la barre de recherche
   initSearch(recipes);
 
-  // Initialiser les filtres (ingrédients et appareils)
+  // Initialiser les filtres (ingrédients, appareils et ustensiles)
   initFilters(recipes);
 
-  // Cibler les éléments du DOM pour les filtres d'ingrédients et d'appareils
+  // Cibler les éléments du DOM pour les filtres d'ingrédients, d'appareils et d'ustensiles
   const ingredientTrigger = document.querySelector(".ingredient-filter");
   const ingredientDropdown = document.getElementById("ingredientDropdown");
 
   const applianceTrigger = document.querySelector(".appliance-filter");
   const applianceDropdown = document.getElementById("applianceDropdown");
 
-  // Assurer que toggleDropdown fonctionne pour les deux filtres
+  const ustensilTrigger = document.querySelector(".ustensil-filter");
+  const ustensilDropdown = document.getElementById("ustensilDropdown");
+
+  // Assurer que toggleDropdown fonctionne pour les trois filtres
   if (ingredientTrigger && ingredientDropdown) {
     toggleDropdown(ingredientTrigger, ingredientDropdown);
   }
 
   if (applianceTrigger && applianceDropdown) {
     toggleDropdown(applianceTrigger, applianceDropdown);
+  }
+
+  if (ustensilTrigger && ustensilDropdown) {
+    toggleDropdown(ustensilTrigger, ustensilDropdown);
   }
 }
 

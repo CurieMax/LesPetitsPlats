@@ -3,16 +3,21 @@ import { displayRecipes } from "./index.js";
 /**
  * Récupère une liste unique d'éléments d'une clé donnée
  * @param {Object[]} recipes - Tableau d'objets recettes
- * @param {string} key - Clé à extraire ("ingredients" ou "appliance")
+ * @param {string} key - Clé à extraire ("ingredients", "appliance" ou "utensils")
  * @returns {string[]} Liste triée des éléments uniques
  */
 export function getUniqueItems(recipes, key) {
   const itemsSet = new Set();
 
   recipes.forEach((recipe) => {
+    // Vérifie si la clé est "ingredients"
     if (key === "ingredients") {
-      recipe.ingredients.forEach((ingredientObj) => {
+      recipe.ingredients?.forEach((ingredientObj) => {
         itemsSet.add(ingredientObj.ingredient);
+      });
+    } else if (key === "ustensils" && recipe.ustensils) { // Utilise "ustensils" ici
+      recipe.ustensils.forEach((ustensil) => {
+        itemsSet.add(ustensil);
       });
     } else {
       itemsSet.add(recipe[key]);
@@ -125,7 +130,7 @@ export function toggleDropdown(triggerElement, dropdownElement) {
 /**
  * Filtre les recettes en fonction d'une liste d'éléments sélectionnés
  * @param {string[]} selectedItems - Liste des éléments sélectionnés
- * @param {string} key - Clé à filtrer ("ingredients" ou "appliance")
+ * @param {string} key - Clé à filtrer ("ingredients", "appliance" ou "utensils")
  */
 export function filterRecipesByItems(selectedItems, key) {
   const recipes = JSON.parse(localStorage.getItem("recipesData")) || [];
@@ -134,10 +139,15 @@ export function filterRecipesByItems(selectedItems, key) {
       return selectedItems.every((item) =>
         recipe.ingredients.some((ing) => ing.ingredient === item)
       );
+    } else if (key === "ustensils") {
+      return selectedItems.every((item) =>
+        recipe.ustensils.includes(item)
+      );
     } else {
       return selectedItems.every((item) => recipe[key] === item);
     }
   });
 
-displayRecipes(recipes);  
+  // Afficher les recettes filtrées
+  displayRecipes(filteredRecipes);
 }
