@@ -1,135 +1,143 @@
 import { displayRecipes } from "./index.js";
 
 /**
- * Récupère une liste unique d'ingrédients à partir des recettes
+ * Récupère une liste unique d'éléments d'une clé donnée
  * @param {Object[]} recipes - Tableau d'objets recettes
- * @returns {Set} Ensemble des ingrédients uniques
+ * @param {string} key - Clé à extraire ("ingredients" ou "appliance")
+ * @returns {string[]} Liste triée des éléments uniques
  */
-export function getUniqueIngredients(recipes) {
-    const ingredientsSet = new Set();
-    recipes.forEach((recipe) => {
-        recipe.ingredients.forEach((ingredientObj) => {
-            ingredientsSet.add(ingredientObj.ingredient);
-        });
-    });
-    return Array.from(ingredientsSet).sort();
+export function getUniqueItems(recipes, key) {
+  const itemsSet = new Set();
+
+  recipes.forEach((recipe) => {
+    if (key === "ingredients") {
+      recipe.ingredients.forEach((ingredientObj) => {
+        itemsSet.add(ingredientObj.ingredient);
+      });
+    } else {
+      itemsSet.add(recipe[key]);
+    }
+  });
+
+  return Array.from(itemsSet).sort();
 }
 
 /**
- * Affiche les ingrédients dans la liste déroulante
- * @param {string[]} ingredients - Liste d'ingrédients uniques
+ * Affiche les éléments dans la liste déroulante
+ * @param {string[]} items - Liste d'éléments uniques
+ * @param {string} listId - ID de la liste HTML (ex : "ingredientList")
+ * @param {Function} onClickCallback - Fonction à exécuter lors d'un clic sur un élément
  */
-export function displayIngredients(ingredients) {
-    const ingredientList = document.getElementById("ingredientList");
+export function displayItems(items, listId, onClickCallback) {
+  const list = document.getElementById(listId);
 
-    ingredientList.innerHTML = "";
+  list.innerHTML = "";
 
-    ingredients.forEach((ingredient) => {
-        const li = document.createElement("li");
-        li.textContent = ingredient;
-        li.addEventListener("click", () => {
-            addIngredientTag(ingredient);
-            filterRecipesByIngredient(ingredient);
-            toggleDropdown();  // Réduire la liste déroulante après la sélection
-        });
-        ingredientList.appendChild(li);
-    });
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    li.addEventListener("click", () => onClickCallback(item));
+    list.appendChild(li);
+  });
 }
 
 /**
- * Ajoute un tag d'ingrédient sélectionné avec une croix
- * @param {string} ingredient - Ingrédient sélectionné
+ * Ajoute un tag sélectionné avec une croix
+ * @param {string} item - Élément sélectionné
+ * @param {string} tagContainerId - ID du conteneur des tags
+ * @param {Function} onCloseCallback - Fonction exécutée lors de la suppression du tag
  */
-export function addIngredientTag(ingredient) {
-    const tagContainer = document.getElementById("ingredientTags");
+export function addTag(item, tagContainerId, onCloseCallback) {
+  const tagContainer = document.getElementById(tagContainerId);
 
-    const tag = document.createElement("div");
-    tag.classList.add("ingredient-tag");
-    tag.textContent = ingredient;
+  const tag = document.createElement("div");
+  tag.classList.add("tag");
+  tag.textContent = item;
 
-    const closeBtn = document.createElement("span");
-    closeBtn.classList.add("close-btn");
-    closeBtn.textContent = "×";
-    closeBtn.addEventListener("click", () => {
-        removeIngredientTag(ingredient);
-    });
+  const closeBtn = document.createElement("span");
+  closeBtn.classList.add("close-btn");
+  closeBtn.textContent = "×";
+  closeBtn.addEventListener("click", () => {
+    tagContainer.removeChild(tag);
+    onCloseCallback(item);
+  });
 
-    tag.appendChild(closeBtn);
-    tagContainer.appendChild(tag);
+  tag.appendChild(closeBtn);
+  tagContainer.appendChild(tag);
 }
 
 /**
- * Supprime un tag d'ingrédient sélectionné et filtre les recettes en conséquence
- * @param {string} ingredient - Ingrédient à supprimer
+ * Supprime un tag et filtre les recettes en conséquence
+ * @param {string} item - Élément à supprimer
+ * @param {string} tagContainerId - ID du conteneur des tags
+ * @param {Function} onUpdateCallback - Fonction exécutée après la mise à jour des tags
  */
-export function removeIngredientTag(ingredient) {
-    const tagContainer = document.getElementById("ingredientTags");
+export function removeTag(item, tagContainerId, onUpdateCallback) {
+  const tagContainer = document.getElementById(tagContainerId);
 
-    // Supprimer le tag du DOM
-    const tags = tagContainer.querySelectorAll(".ingredient-tag");
-    tags.forEach((tag) => {
-        if (tag.textContent.replace("×", "") === ingredient) {
-            tagContainer.removeChild(tag);
-        }
-    });
+  // Supprimer le tag du DOM
+  const tags = tagContainer.querySelectorAll(".tag");
+  tags.forEach((tag) => {
+    if (tag.textContent.replace("×", "") === item) {
+      tagContainer.removeChild(tag);
+    }
+  });
 
-    // Reprendre la recherche avec les ingrédients restants
-    const remainingTags = Array.from(tagContainer.children).map((tag) => tag.textContent.replace("×", ""));
-    filterRecipesByMultipleIngredients(remainingTags);
+  // Mettre à jour les tags restants
+  const remainingTags = Array.from(tagContainer.children).map((tag) =>
+    tag.textContent.replace("×", "")
+  );
+  onUpdateCallback(remainingTags);
 }
 
-/**
- * Filtre les recettes en fonction de plusieurs ingrédients sélectionnés
- * @param {string[]} ingredients - Liste d'ingrédients sélectionnés
- */
-export function filterRecipesByMultipleIngredients(ingredients) {
-    const recipes = JSON.parse(localStorage.getItem("recipesData")) || [];
-    const filteredRecipes = recipes.filter((recipe) =>
-        ingredients.every((ingredient) =>
-            recipe.ingredients.some((ing) => ing.ingredient === ingredient)
-        )
-    );
-    displayRecipes(filteredRecipes);
-}
+export function toggleDropdown(triggerElement, dropdownElement) {
+  // Ajoute un événement de clic sur l'élément déclencheur
+  triggerElement.addEventListener("click", (event) => {
+    // Empêche la propagation du clic pour éviter de fermer la liste immédiatement
+    event.stopPropagation();
 
-/**
- * Filtre les recettes en fonction de l'ingrédient sélectionné
- * @param {string} ingredient - Ingrédient sélectionné
- */
-export function filterRecipesByIngredient(ingredient) {
-    const recipes = JSON.parse(localStorage.getItem("recipesData")) || [];
-    const filteredRecipes = recipes.filter((recipe) =>
-      recipe.ingredients.some((ing) => ing.ingredient === ingredient)
-    );
-    displayRecipes(filteredRecipes);
-}
-
-/**
- * Gère l'affichage de la liste déroulante
- */
-export function toggleDropdown() {
-    const dropdown = document.getElementById("filterDropdown");
-    dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
-}
-
-document
-    .querySelector(".filter-container")
-    .addEventListener("click", toggleDropdown);
-
-/**
- * Gère la recherche d'ingrédients dans la liste déroulante
- */
-export function filterItems() {
-    const input = document.getElementById("searchInput").value.toLowerCase();
-    const items = document.querySelectorAll(".ingredient-list li");
-
-    items.forEach((item) => {
-      if (item.textContent.toLowerCase().includes(input)) {
-        item.style.display = "block";
-      } else {
-        item.style.display = "none";
+    // Ferme toutes les autres listes déroulantes
+    document.querySelectorAll(".dropdown-list").forEach((dropdown) => {
+      if (dropdown !== dropdownElement) {
+        dropdown.style.display = "none";
       }
     });
+
+    // Basculer l'affichage de la liste associée
+    if (dropdownElement.style.display === "block") {
+      dropdownElement.style.display = "none";
+    } else {
+      dropdownElement.style.display = "block";
+    }
+  });
+
+  // Ajoute un événement global pour fermer la liste déroulante lorsqu'on clique en dehors
+  document.addEventListener("click", (event) => {
+    if (
+      !triggerElement.contains(event.target) && // Si le clic n'est pas sur le bouton
+      !dropdownElement.contains(event.target) // Ni à l'intérieur de la liste
+    ) {
+      dropdownElement.style.display = "none";
+    }
+  });
 }
-  
-document.getElementById('searchInput').addEventListener('input', filterItems);
+
+/**
+ * Filtre les recettes en fonction d'une liste d'éléments sélectionnés
+ * @param {string[]} selectedItems - Liste des éléments sélectionnés
+ * @param {string} key - Clé à filtrer ("ingredients" ou "appliance")
+ */
+export function filterRecipesByItems(selectedItems, key) {
+  const recipes = JSON.parse(localStorage.getItem("recipesData")) || [];
+  const filteredRecipes = recipes.filter((recipe) => {
+    if (key === "ingredients") {
+      return selectedItems.every((item) =>
+        recipe.ingredients.some((ing) => ing.ingredient === item)
+      );
+    } else {
+      return selectedItems.every((item) => recipe[key] === item);
+    }
+  });
+
+displayRecipes(recipes);  
+}

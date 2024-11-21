@@ -1,3 +1,4 @@
+/* Réinitialisation */
 * {
   margin: 0;
   padding: 0;
@@ -12,6 +13,7 @@ body {
   padding: 0;
 }
 
+/* Header */
 header {
   position: relative;
   height: 45em;
@@ -57,7 +59,6 @@ header h1 {
   text-align: center;
   font-family: "Anton";
   font-size: 44px;
-  font-style: normal;
   font-weight: 400;
   line-height: normal;
 }
@@ -91,22 +92,24 @@ header h1 {
   color: white;
 }
 
+/* Main */
 main {
   background-color: #ededed;
 }
 
 .filters {
   display: flex;
-  align-items: center; /* Centre les éléments verticalement */
+  align-items: center;
   background-color: #ededed;
   padding: 10px;
   box-sizing: border-box;
 }
 
+/* Filtre général */
 .filter-list {
   position: relative;
-  font-family: Arial, sans-serif;
   width: 250px;
+  margin-left: 3.4em;
 }
 
 .filter-container {
@@ -117,23 +120,27 @@ main {
   padding: 16px 18px;
   border-radius: 11px;
   cursor: pointer;
-  width: 230px;
-  margin-left: 3.4em;
+  width: 100%;
 }
 
 .filter-name {
   font-size: 16px;
 }
 
-.filter-dropdown {
+/* Liste déroulante cachée par défaut */
+.dropdown-list {
   display: none;
   position: absolute;
-  top: 45px;
-  width: 100%;
   background-color: white;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 100%; /* ou une largeur spécifique */
   z-index: 10;
+}
+
+/* Les filtres sont positionnés relativement pour la gestion des listes déroulantes */
+.filter-container {
+  position: relative;
 }
 
 .filter-search {
@@ -141,7 +148,6 @@ main {
   align-items: center;
   padding: 10px;
   border-bottom: 1px solid #e0e0e0;
-  background-color: white;
 }
 
 .filter-search input {
@@ -152,198 +158,121 @@ main {
   outline: none;
 }
 
-/* Conteneur pour l'ingrédient sélectionné */
-#selectedIngredient {
-  display: none;
-  background-color: #ffd966;
-  padding: 10px;
-  margin: 10px 0;
-  font-weight: bold;
-  text-align: center;
-  border-radius: 5px;
-}
-
-/* Liste des ingrédients */
-.ingredient-list {
-  position: absolute;
+.dropdown-list ul {
   list-style: none;
   padding: 0;
   margin: 0;
   max-height: 200px;
   overflow-y: auto;
-  background-color: white;
-  z-index: 10;
-  width: 230px;
-  margin-left: 3.4em;
-  border-radius: 0px 0px 11px 11px;
+  border-radius: 0 0 5px 5px;
 }
 
-.ingredient-list li {
+.dropdown-list li {
   padding: 10px;
   cursor: pointer;
 }
 
-.ingredient-list li:hover,
-.ingredient-list li.selected {
+.dropdown-list li:hover,
+.dropdown-list li.selected {
   background-color: #ffd966;
 }
 
-/* Style pour aligner le texte de recettes à droite */
-.filter-text {
-  color: var(--Black, #1b1b1b);
-  font-family: "Anton";
-  font-size: 21px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-  margin-left: auto; /* Aligne à droite */
-  padding: 0 16px;
-}
-
-
-/* Style pour les tags d'ingrédients */
-#ingredientTags {
+/* Tags */
+.selected-tags {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 10px;
+  margin-left: 3.4em;
 }
 
-.ingredient-tag {
+.selected-tags .tag {
   background-color: #ffd966;
-  border: none;
-  padding: 16px 18px;
+  padding: 8px 12px;
   margin: 5px;
-  border-radius: 3px;
+  border-radius: 5px;
   display: flex;
   align-items: center;
-  margin-left: 3.9em;
-  border-radius: 11px;
+  font-size: 14px;
 }
 
-.ingredient-tag .close-btn {
+.selected-tags .close-btn {
   margin-left: 8px;
   cursor: pointer;
   font-weight: bold;
   font-size: 16px;
 }
 
-
-/* Container for recipe cards */
+/* Section des recettes */
 .recipe-section {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 58px;
-  background-color: #ededed;
-  padding-top: 20px;
-  justify-content: center;
-  align-items: start;
+  gap: 30px;
+  padding: 20px;
   max-width: 80%;
   margin: 0 auto;
 }
 
-/* Style for individual recipe card */
 .recipe-card {
   display: flex;
   flex-direction: column;
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 380px;
-  min-height: 821px;
-  overflow: hidden;
-  position: relative;
   transition: transform 0.3s;
+  overflow: hidden;
 }
 
 .recipe-card:hover {
   transform: translateY(-10px);
 }
 
-/* Recipe image */
 .recipe-card img {
   width: 100%;
   height: 200px;
   object-fit: cover;
-  border-bottom: 1px solid #e0e0e0;
 }
 
-/* Time label on image (permanently visible) */
-.recipe-time {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #ffd15b;
-  border-radius: 14px;
-  padding: 5px 10px;
-  font-weight: bold;
-  color: #fff;
-  font-size: 0.9rem;
-  z-index: 10;
-}
-
-/* Recipe card content */
 .recipe-info {
-  padding: 25px;
+  padding: 15px;
 }
 
-.recipe-info h3 {
-  color: var(--Grey, #7a7a7a);
-  font-family: Manrope;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 1.08px;
-  text-transform: uppercase;
-  margin-bottom: 15px;
-}
-
-.recipe-card h2 {
-  color: #000;
-  font-family: "Anton";
+.recipe-info h2 {
   font-size: 18px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-  padding-left: 25px;
-  padding-top: 32px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
 }
 
-.recipe-card p {
+.recipe-info p {
+  font-size: 14px;
   color: #666;
 }
 
 .recipe-ingredients {
-  display: flex;
-  flex-direction: column;
-  list-style-type: none;
-  color: #333;
-  padding: 0;
-  font-size: 16px;
-  margin-top: 32px;
+  margin-top: 10px;
 }
 
 .recipe-ingredients h3 {
-  color: var(--Grey, #7a7a7a);
-  font-family: Manrope;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 1.08px;
-  text-transform: uppercase;
-  margin-bottom: 0px;
-}
-
-.recipe-ingredients li {
-  list-style: none;
+  font-size: 16px;
+  font-weight: bold;
   margin-bottom: 5px;
 }
 
-.ingredients-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 20px;
+.recipe-ingredients ul {
+  list-style: none;
+  padding: 0;
 }
 
+.recipe-ingredients li {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.filter-text {
+  margin-left: auto;
+  font-family: "Anton";
+  font-size: 21px;
+  font-weight: 400;
+  color: #1b1b1b;
+  padding: 0 16px;
+}

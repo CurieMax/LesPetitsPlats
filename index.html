@@ -34,12 +34,13 @@
         <div class="title">
           <h1>
             CHERCHEZ PARMI PLUS DE 1500 RECETTES <br />
-            DU QUOTIDIEN,SIMPLES ET DELICIEUSES
+            DU QUOTIDIEN, SIMPLES ET DÉLICIEUSES
           </h1>
         </div>
         <div class="search-bar">
           <input
             type="text"
+            class="global-search"
             placeholder="Rechercher une recette, un ingrédient... (3 caractères minimum)"
           />
           <button type="submit">
@@ -50,39 +51,59 @@
     </header>
 
     <main>
+      <!-- Section des filtres -->
       <section class="filters">
+        <!-- Filtre des ingrédients -->
+        <!-- Filtre des ingrédients -->
         <div class="filter-list">
-          <div class="filter-container">
+          <div class="filter-container ingredient-filter">
             <span class="filter-name">Ingrédients</span>
             <i class="fa-solid fa-chevron-down"></i>
           </div>
 
-          <div id="selectedIngredient" class="selected-ingredient"></div>
-
-          <div id="filterDropdown" class="ingredient-list">
+          <!-- Liste déroulante des ingrédients -->
+          <div id="ingredientDropdown" class="dropdown-list">
             <div class="filter-search">
-              <input type="text" id="searchInput" placeholder="Rechercher un ingrédient" />
+              <input
+                type="text"
+                id="ingredientSearch"
+                placeholder="Rechercher un ingrédient"
+              />
               <i class="fa-solid fa-magnifying-glass"></i>
             </div>
-            <ul id="ingredientList">
-
-            </ul>
+            <ul id="ingredientList"></ul>
           </div>
         </div>
-        <div class="filter-text">1500 Recettes</div>
-      </section>
 
+        <!-- Filtre des appareils -->
+        <div class="filter-list">
+          <div class="filter-container appliance-filter">
+            <span class="filter-name">Appareils</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
 
-      <div id="ingredientTags" class="ingredient-tags"></div>
-
-      <section class="recipes">
-        <div class="recipe">
-          <h2></h2>
-          <p></p>
+          <!-- Liste déroulante des appareils -->
+          <div id="applianceDropdown" class="dropdown-list">
+            <div class="filter-search">
+              <input
+                type="text"
+                id="applianceSearch"
+                placeholder="Rechercher un appareil"
+              />
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <ul id="applianceList"></ul>
+          </div>
         </div>
+        <div class="filter-text">1500 recettes</div>
       </section>
+      <div id="ingredientTags" class="selected-tags"></div>
+      <div id="applianceTags" class="selected-tags"></div>
 
-      <div class="recipe-section"></div>
+      <!-- Section des recettes -->
+      <section class="recipes">
+        <div class="recipe-section"></div>
+      </section>
     </main>
 
     <script type="module" src="scripts/index.js"></script>
