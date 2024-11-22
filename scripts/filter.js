@@ -36,8 +36,10 @@ export function getUniqueItems(recipes, key) {
 export function displayItems(items, listId, onClickCallback) {
   const list = document.getElementById(listId);
 
+  // Réinitialise la liste avant de l'afficher
   list.innerHTML = "";
 
+  // Ajoute les éléments filtrés
   items.forEach((item) => {
     const li = document.createElement("li");
     li.textContent = item;
@@ -125,6 +127,46 @@ export function toggleDropdown(triggerElement, dropdownElement) {
     }
   });
 }
+
+/**
+ * Recherche dans la liste déroulante des éléments (ingrédients, appareils, ustensiles)
+ * @param {string} searchInput - Texte de recherche
+ * @param {string[]} items - Liste d'éléments (ingrédients, appareils, ustensiles)
+ * @param {string} listId - ID de la liste HTML à filtrer
+ */
+export function handleDropdownSearch(searchInput, items, listId) {
+  // Supprime les doublons en utilisant un Set
+  const filteredItems = [...new Set(items.filter(item =>
+    item.toLowerCase().includes(searchInput.toLowerCase())
+  ))];
+
+  // Affiche les éléments filtrés dans la liste HTML
+  displayItems(filteredItems, listId, (item) => {
+    console.log(`Item sélectionné : ${item}`);
+  });
+}
+
+document.getElementById("ingredientSearch").addEventListener("input", (event) => {
+  const searchInput = event.target.value;
+  const ingredients = JSON.parse(localStorage.getItem("recipesData"))?.map(recipe => 
+    recipe.ingredients?.map(ing => ing.ingredient)
+  ).flat() || [];
+
+  handleDropdownSearch(searchInput, ingredients, "ingredientList");
+});
+
+document.getElementById("applianceSearch").addEventListener("input", (event) => {
+  const searchInput = event.target.value;
+  const appliances = JSON.parse(localStorage.getItem("recipesData"))?.map(recipe => recipe.appliance) || [];
+  handleDropdownSearch(searchInput, appliances, "applianceList");
+});
+
+document.getElementById("ustensilSearch").addEventListener("input", (event) => {
+  const searchInput = event.target.value;
+  const ustensils = JSON.parse(localStorage.getItem("recipesData"))?.map(recipe => recipe.ustensils).flat() || [];
+  handleDropdownSearch(searchInput, ustensils, "ustensilList");
+});
+
 
 /**
  * Filtre les recettes en fonction d'une liste d'éléments sélectionnés
