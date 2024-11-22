@@ -59,9 +59,8 @@ export function addTag(item, tagContainerId, onCloseCallback) {
   tag.classList.add("tag");
   tag.textContent = item;
 
-  const closeBtn = document.createElement("span");
-  closeBtn.classList.add("close-btn");
-  closeBtn.textContent = "×";
+  const closeBtn = document.createElement("i");
+  closeBtn.classList.add("fa-solid", "fa-circle-xmark", "close-btn");
   closeBtn.addEventListener("click", () => {
     tagContainer.removeChild(tag);
     onCloseCallback(item);

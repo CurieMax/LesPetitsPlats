@@ -182,14 +182,14 @@ main {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 10px;
-  margin-left: 3.4em;
+  margin-left: 3.6em;
 }
 
 .selected-tags .tag {
   background-color: #ffd966;
-  padding: 8px 12px;
+  padding: 16px 18px;
   margin: 5px;
-  border-radius: 5px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   font-size: 14px;
