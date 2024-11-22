@@ -9,6 +9,24 @@ import {
   filterRecipesByItems,
   toggleDropdown,
 } from "./filter.js";
+import { createFiltersSection } from "./homepage.js";
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("filtersContainer");
+
+  if (container) {
+    // Vérifie si une section "filters" existe déjà
+    if (!container.querySelector(".filters")) {
+      const filtersSection = createFiltersSection();
+      container.appendChild(filtersSection);
+    } else {
+      console.warn("Une section 'filters' existe déjà dans le DOM.");
+    }
+  } else {
+    console.error("Le conteneur #filtersContainer est introuvable.");
+  }
+});
 
 /**
  * Affiche les recettes correspondantes dans la section .recipe-section
@@ -45,6 +63,8 @@ function initSearch(recipes) {
     }
   });
 }
+
+
 
 /**
  * Initialise les filtres pour les ingrédients, appareils et ustensiles
