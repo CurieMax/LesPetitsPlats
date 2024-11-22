@@ -252,7 +252,7 @@ main {
   font-weight: bold;
   color: #fff;
   font-size: 0.9rem;
-  z-index: 10;
+  z-index: 9;
 }
 
 /* Recipe card content */
