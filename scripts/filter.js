@@ -150,7 +150,7 @@ document.getElementById("ingredientSearch").addEventListener("input", (event) =>
   const searchInput = event.target.value;
   const ingredients = JSON.parse(localStorage.getItem("recipesData"))?.map(recipe => 
     recipe.ingredients?.map(ing => ing.ingredient)
-  ).flat() || [];
+  ).flat() || []; // Utilisation de flat() pour flatter le tableau
 
   handleDropdownSearch(searchInput, ingredients, "ingredientList");
 });
