@@ -1,3 +1,88 @@
+/**
+ * Creates and returns the header content element for a webpage.
+ * This function constructs the header's HTML structure, including
+ * sections for the background image, logos, title, and search bar.
+ * The header content consists of:
+ * - A background image displayed behind the header content.
+ * - A logo section containing two images.
+ * - A title section with a heading displaying a message.
+ * - A search bar allowing users to search for recipes or ingredients.
+ *
+ * @returns {HTMLElement} The constructed header content element.
+ */
+export function createHeaderContent() {
+  // Conteneur principal du header
+  const headerContent = document.createElement("div");
+  headerContent.classList.add("header-content");
+
+  // Section background
+  const backgroundDiv = document.createElement("div");
+  backgroundDiv.classList.add("background");
+  const backgroundImg = document.createElement("img");
+  backgroundImg.src = "assets/index-image.jpg";
+  backgroundImg.alt = "background";
+  backgroundImg.classList.add("background-img");
+  backgroundDiv.appendChild(backgroundImg);
+
+  // Section logo
+  const logoDiv = document.createElement("div");
+  logoDiv.classList.add("logo");
+  const logoImg1 = document.createElement("img");
+  logoImg1.src = "assets/Les petits plats.png";
+  logoImg1.alt = "logo";
+  logoImg1.classList.add("logo-img");
+  const logoImg2 = document.createElement("img");
+  logoImg2.src = "assets/Group 3.png";
+  logoImg2.alt = "logo";
+  logoImg2.classList.add("logo-img2");
+  logoDiv.appendChild(logoImg1);
+  logoDiv.appendChild(logoImg2);
+
+  // Section titre
+  const titleDiv = document.createElement("div");
+  titleDiv.classList.add("title");
+  const titleH1 = document.createElement("h1");
+  titleH1.innerHTML =
+    "CHERCHEZ PARMI PLUS DE 1500 RECETTES <br /> DU QUOTIDIEN, SIMPLES ET DÉLICIEUSES";
+  titleDiv.appendChild(titleH1);
+
+  // Barre de recherche
+  const searchBarDiv = document.createElement("div");
+  searchBarDiv.classList.add("search-bar");
+  const searchInput = document.createElement("input");
+  searchInput.type = "text";
+  searchInput.classList.add("global-search");
+  searchInput.placeholder =
+    "Rechercher une recette, un ingrédient... (3 caractères minimum)";
+  const searchButton = document.createElement("button");
+  searchButton.type = "submit";
+  const searchIcon = document.createElement("i");
+  searchIcon.classList.add("fa-solid", "fa-magnifying-glass");
+  searchButton.appendChild(searchIcon);
+  searchBarDiv.appendChild(searchInput);
+  searchBarDiv.appendChild(searchButton);
+
+  // Assemblage des sections
+  headerContent.appendChild(backgroundDiv);
+  headerContent.appendChild(logoDiv);
+  headerContent.appendChild(titleDiv);
+  headerContent.appendChild(searchBarDiv);
+
+  return headerContent;
+}
+
+// Injection dans le DOM
+document.addEventListener("DOMContentLoaded", () => {
+  const header = document.querySelector("header");
+
+  if (header) {
+    const headerContent = createHeaderContent();
+    header.appendChild(headerContent);
+  } else {
+    console.error("Aucun élément <header> trouvé dans le DOM.");
+  }
+});
+
 function createFilterSection(filterName, filterId, placeholderText) {
     // Conteneur principal pour chaque filtre
     const filterList = document.createElement("div");

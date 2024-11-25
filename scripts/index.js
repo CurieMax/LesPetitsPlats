@@ -9,7 +9,7 @@ import {
   filterRecipesByItems,
   toggleDropdown,
 } from "./filter.js";
-import { createFiltersSection } from "./homepage.js";
+import { createFiltersSection, createHeaderContent } from "./homepage.js";
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -114,6 +114,8 @@ function initFilters(recipes) {
  */
 async function init() {
   const recipes = await getRecipes();
+
+  createHeaderContent();
 
   // Stocker les recettes pour un accès global
   localStorage.setItem("recipesData", JSON.stringify(recipes));
