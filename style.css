@@ -202,6 +202,11 @@ main {
   font-size: 16px;
 }
 
+
+.choosed-tags {
+  background-color: #ffd966;
+}
+
 /* Container for recipe cards */
 .recipe-section {
   display: grid;

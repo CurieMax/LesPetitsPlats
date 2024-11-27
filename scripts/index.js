@@ -54,39 +54,33 @@ function initFilters(recipes) {
   // Récupérer les listes uniques d'ingrédients, d'appareils et d'ustensiles
   const ingredients = getUniqueItems(recipes, "ingredients");
   const appliances = getUniqueItems(recipes, "appliance");
-  const ustensils = getUniqueItems(recipes, "ustensils"); // Utilise "ustensils" ici
+  const ustensils = getUniqueItems(recipes, "ustensils");
 
-  // Gérer les ingrédients
-  displayItems(ingredients, "ingredientList", (ingredient) => {
-    addTag(ingredient, "ingredientTags", (removedIngredient) => {
-      removeTag(removedIngredient, "ingredientTags", (remainingIngredients) => {
-        filterRecipesByItems(remainingIngredients, "ingredients");
-      });
-    });
-    filterRecipesByItems([ingredient], "ingredients");
-  });
-
-  // Gérer les appareils
-  displayItems(appliances, "applianceList", (appliance) => {
-    addTag(appliance, "applianceTags", (removedAppliance) => {
-      removeTag(removedAppliance, "applianceTags", (remainingAppliances) => {
-        filterRecipesByItems(remainingAppliances, "appliance");
-      });
-    });
-    filterRecipesByItems([appliance], "appliance");
-  });
-
-  // Gérer les ustensiles (en vérifiant s'il existe)
-  if (ustensils.length > 0) {
-    displayItems(ustensils, "ustensilList", (ustensil) => { // Utilise "ustensilList" ici
-      addTag(ustensil, "ustensilTags", (removedUstensil) => {
-        removeTag(removedUstensil, "ustensilTags", (remainingUstensils) => {
-          filterRecipesByItems(remainingUstensils, "ustensils");
+  // Afficher et gérer les interactions pour chaque filtre
+  const setupFilter = (items, listId, category) => {
+    displayItems(items, listId, (item) => {
+      addTag(item, category, (removedItem) => {
+        removeTag(removedItem, category, (remainingTags) => {
+          filterRecipesByItems(remainingTags);
         });
       });
-      filterRecipesByItems([ustensil], "ustensils");
+
+      const selectedTags = [
+        ...document
+          .getElementById("tags")
+          .querySelectorAll(".tag"),
+      ].map((tag) => ({
+        item: tag.dataset.item,
+        category: tag.dataset.category,
+      }));
+
+      filterRecipesByItems(selectedTags);
     });
-  }
+  };
+
+  setupFilter(ingredients, "ingredientList", "ingredients");
+  setupFilter(appliances, "applianceList", "appliances");
+  setupFilter(ustensils, "ustensilList", "ustensils");
 }
 
 /**
@@ -107,28 +101,21 @@ async function init() {
   // Initialiser les filtres (ingrédients, appareils et ustensiles)
   initFilters(recipes);
 
-  // Cibler les éléments du DOM pour les filtres d'ingrédients, d'appareils et d'ustensiles
-  const ingredientTrigger = document.querySelector(".ingredient-filter");
-  const ingredientDropdown = document.getElementById("ingredientDropdown");
+  // Gérer l'ouverture/fermeture des listes déroulantes
+  toggleDropdown(
+    document.querySelector(".ingredient-filter"),
+    document.getElementById("ingredientDropdown")
+  );
 
-  const applianceTrigger = document.querySelector(".appliance-filter");
-  const applianceDropdown = document.getElementById("applianceDropdown");
+  toggleDropdown(
+    document.querySelector(".appliance-filter"),
+    document.getElementById("applianceDropdown")
+  );
 
-  const ustensilTrigger = document.querySelector(".ustensil-filter");
-  const ustensilDropdown = document.getElementById("ustensilDropdown");
-
-  // Assurer que toggleDropdown fonctionne pour les trois filtres
-  if (ingredientTrigger && ingredientDropdown) {
-    toggleDropdown(ingredientTrigger, ingredientDropdown);
-  }
-
-  if (applianceTrigger && applianceDropdown) {
-    toggleDropdown(applianceTrigger, applianceDropdown);
-  }
-
-  if (ustensilTrigger && ustensilDropdown) {
-    toggleDropdown(ustensilTrigger, ustensilDropdown);
-  }
+  toggleDropdown(
+    document.querySelector(".ustensil-filter"),
+    document.getElementById("ustensilDropdown")
+  );
 }
 
 init();
