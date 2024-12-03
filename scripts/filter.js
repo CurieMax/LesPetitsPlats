@@ -1,4 +1,5 @@
 import { displayRecipes } from "./index.js";
+import { addTag } from "./tag.js";
 
 // Données des recettes (à adapter selon vos données)
 const recipes = JSON.parse(localStorage.getItem("recipesData"));
@@ -11,20 +12,18 @@ const uniqueUstensils = getUniqueItems(recipes, "utensils");
 /**
  * Récupère une liste unique d'éléments d'une clé donnée
  * @param {Object[]} recipes - Tableau d'objets recettes
- * @param {string} key - Clé à extraire ("ingredients", "appliance" ou "utensils")
+ * @param {string} key - Clé à extraire ("ingredients", "appliance", "ustensils")
  * @returns {string[]} Liste triée des éléments uniques
  */
 export function getUniqueItems(recipes, key) {
   const itemsSet = new Set();
 
   recipes.forEach((recipe) => {
-    // Vérifie si la clé est "ingredients"
     if (key === "ingredients") {
       recipe.ingredients?.forEach((ingredientObj) => {
         itemsSet.add(ingredientObj.ingredient);
       });
-    } else if (key === "ustensils" && recipe.ustensils) {
-      // Utilise "ustensils" ici
+    } else if (key === "ustensils") {
       recipe.ustensils.forEach((ustensil) => {
         itemsSet.add(ustensil);
       });
@@ -85,18 +84,30 @@ function addSearchFunctionality(inputId, listId, items) {
     // Met à jour la liste affichée
     displayItems(filteredItems, listId, (selectedItem) => {
       // Ajoute un tag au clic sur un élément filtré
-      addTag(selectedItem, listId.replace("List", ""), (removedItem, category) => {
-        console.log(`Tag supprimé : ${removedItem} de la catégorie ${category}`);
-      });
+      addTag(
+        selectedItem,
+        listId.replace("List", ""),
+        (removedItem, category) => {
+          console.log(
+            `Tag supprimé : ${removedItem} de la catégorie ${category}`
+          );
+        }
+      );
     });
   });
 
   // Affiche la liste complète au chargement
   displayItems(items, listId, (selectedItem) => {
     // Ajoute un tag au clic sur un élément
-    addTag(selectedItem, listId.replace("List", ""), (removedItem, category) => {
-      console.log(`Tag supprimé : ${removedItem} de la catégorie ${category}`);
-    });
+    addTag(
+      selectedItem,
+      listId.replace("List", ""),
+      (removedItem, category) => {
+        console.log(
+          `Tag supprimé : ${removedItem} de la catégorie ${category}`
+        );
+      }
+    );
   });
 }
 
@@ -107,102 +118,27 @@ addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 
 
 /**
- * Ajoute un tag à la liste des tags
- * @param {string} item - Élément à ajouter
- * @param {string} category - Catégorie du tag
- * @param {Function} onCloseCallback - Fonction à exécuter lors de la suppression d'un tag
- */
-export function addTag(item, category, onCloseCallback) {
-  const tagContainer = document.getElementById("tags");
-
-  // Vérifie si le tag existe déjà
-  const existingTag = Array.from(tagContainer.children).find(
-    (tag) => tag.dataset.item === item && tag.dataset.category === category
-  );
-  if (existingTag) return; // Évite les doublons
-
-  // Crée un nouvel élément de tag
-  const tag = document.createElement("div");
-  tag.classList.add("tag");
-  tag.dataset.item = item;
-  tag.dataset.category = category;
-  tag.textContent = item;
-
-  // Ajoute un bouton de fermeture
-  const closeBtn = document.createElement("i");
-  closeBtn.classList.add("fa-solid", "fa-circle-xmark", "close-btn");
-  closeBtn.addEventListener("click", () => {
-    tagContainer.removeChild(tag); // Supprime le tag
-    onCloseCallback(item, category); // Appelle le callback pour gérer la suppression
-    const remainingTags = Array.from(tagContainer.children).map((tag) => ({
-      item: tag.dataset.item,
-      category: tag.dataset.category,
-    }));
-
-    // Met à jour les options restantes après suppression
-    const { remainingOptions } = filterRecipesByItems(remainingTags);
-    updateDropdownLists(remainingOptions); // Met à jour les listes déroulantes
-  });
-
-  tag.appendChild(closeBtn);
-  tagContainer.appendChild(tag);
-
-  console.log(`Tag ajouté : ${item} (${category})`);
-  
-  // Met à jour les options après ajout
-  const remainingTags = Array.from(tagContainer.children).map((tag) => ({
-    item: tag.dataset.item,
-    category: tag.dataset.category,
-  }));
-  const { remainingOptions } = filterRecipesByItems(remainingTags);
-  updateDropdownLists(remainingOptions);
-}
-
-
-/**
- * Supprime un tag spécifique et met à jour les recettes
- * @param {string} item - Élément à supprimer
- * @param {string} category - Catégorie du tag
- * @param {Function} onUpdateCallback - Fonction exécutée après mise à jour
- */
-export function removeTag(item, category, onUpdateCallback) {
-  const tagContainer = document.getElementById("tags");
-
-  const tag = Array.from(tagContainer.children).find(
-    (t) => t.dataset.item === item && t.dataset.category === category //chaque élément représenté par un "t" est un enfant de "tagContainer"
-  );
-
-  if (tag) {
-    tagContainer.removeChild(tag);
-  }
-
-  const remainingTags = Array.from(tagContainer.children).map((tag) => ({
-    item: tag.dataset.item,
-    category: tag.dataset.category,
-  }));
-
-  onUpdateCallback(remainingTags);
-
-  // Met à jour les options restantes après suppression
-  const { remainingOptions } = filterRecipesByItems(remainingTags);
-  updateDropdownLists(remainingOptions); // Met à jour les listes déroulantes
-}
-
-/**
  * Met à jour les listes déroulantes avec les options restantes
  * @param {Object} remainingOptions - Options restantes après filtrage
  */
-function updateDropdownLists(remainingOptions) {
+export function updateDropdownLists(filteredRecipes) {
+  const remainingOptions = {
+      ingredients: getUniqueItems(filteredRecipes, "ingredients"),
+      appliances: getUniqueItems(filteredRecipes, "appliance"),
+      ustensils: getUniqueItems(filteredRecipes, "ustensils"),
+  };
+
+  // Mise à jour des listes avec les options restantes
   displayItems(remainingOptions.ingredients, "ingredientList", (ingredient) => {
-    addTag(ingredient, "ingredients", () => {});
+      addTag(ingredient, "ingredients", () => {});
   });
 
   displayItems(remainingOptions.appliances, "applianceList", (appliance) => {
-    addTag(appliance, "appliances", () => {});
+      addTag(appliance, "appliances", () => {});
   });
 
   displayItems(remainingOptions.ustensils, "ustensilList", (ustensil) => {
-    addTag(ustensil, "ustensils", () => {});
+      addTag(ustensil, "ustensils", () => {});
   });
 }
 
@@ -259,8 +195,6 @@ export function handleDropdownSearch(searchInput, items, listId) {
     console.log(`Item sélectionné : ${item}`);
   });
 }
-
-
 
 /**
  * Filtre les recettes et renvoie les options restantes pour chaque catégorie

@@ -1,14 +1,14 @@
 import { recipeTemplate } from "../templates/recipeTemplates.js";
-import { searchRecipes } from "./algo.js";
 import { getRecipes } from "../scripts/api.js";
 import {
   displayItems,
   getUniqueItems,
-  addTag,
-  removeTag,
   filterRecipesByItems,
   toggleDropdown,
+  updateDropdownLists,
 } from "./filter.js";
+import { combinedSearch } from "./search.js";
+import { addTag, removeTag } from "./tag.js";
 
 /**
  * Affiche les recettes correspondantes dans la section .recipe-section
@@ -32,18 +32,30 @@ export async function displayRecipes(recipes) {
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
 function initSearch(recipes) {
-  const searchInput = document.querySelector(".search-bar input");
+    const searchInput = document.querySelector(".search-bar input");
 
-  searchInput.addEventListener("input", (event) => {
-    const keyword = event.target.value;
+    searchInput.addEventListener("input", (event) => {
+        const keyword = event.target.value;
 
-    if (keyword.length >= 3) {
-      const filteredRecipes = searchRecipes(keyword, recipes);
-      displayRecipes(filteredRecipes);
-    } else {
-      displayRecipes(recipes);
-    }
-  });
+        // Récupérer les tags sélectionnés
+        const selectedTags = [
+            ...document
+                .getElementById("tags")
+                .querySelectorAll(".tag")
+        ].map((tag) => ({
+            item: tag.dataset.item,
+            category: tag.dataset.category
+        }));
+
+        // Recherche combinée élargie
+        const filteredRecipes = combinedSearch(keyword, selectedTags, recipes);
+
+        // Mettre à jour l'affichage des recettes
+        displayRecipes(filteredRecipes);
+
+        // Mettre à jour les listes déroulantes avec les options restantes
+        updateDropdownLists(filteredRecipes);
+    });
 }
 
 /**
