@@ -10,6 +10,20 @@ import {
 import { combinedSearch } from "./search.js";
 import { addTag, removeTag } from "./tag.js";
 
+
+/**
+ * Met à jour le texte dans filter-text en fonction du nombre de recettes
+ * @param {number} count - Nombre de recettes affichées
+ */
+function updateFilterText(count) {
+  const filterTextElement = document.querySelector(".filter-text");
+  if (count === 0) {
+    filterTextElement.textContent = "Aucune recette trouvée";
+  } else {
+    filterTextElement.textContent = `${count} recettes disponibles`;
+  }
+}
+
 /**
  * Affiche les recettes correspondantes dans la section .recipe-section
  * @param {Object[]} recipes - Tableau d'objets recettes
@@ -25,6 +39,9 @@ export async function displayRecipes(recipes) {
     const recipeCard = recipeTemplate(recipe);
     recipeSection.appendChild(recipeCard);
   });
+
+  // Mettre à jour filter-text avec le nombre de recettes affichées
+  updateFilterText(recipes.length);
 }
 
 /**

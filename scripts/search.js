@@ -1,3 +1,16 @@
+/**
+ * Recherche les recettes qui contiennent le mot-clé
+ * dans le nom, les ingrédients, la description, les appareils, les ustensiles
+ * ET qui contiennent tous les tags sélectionnés
+ * (ingrédients, appareils, ustensiles).
+ * La fonction renvoie un tableau de recettes qui contiennent le mot-clé
+ * et qui contiennent tous les tags sélectionnés.
+ * @param {string} keyword - Mot-clé à rechercher
+ * @param {Object[]} selectedTags - Tags sélectionnés
+ * @param {Object[]} recipes - Tableau de recettes
+ * @returns {Object[]} Tableau de recettes qui contiennent le mot-clé
+ * et qui contiennent tous les tags sélectionnés
+ */
 export function combinedSearch(keyword, selectedTags, recipes) {
     // Recherche par mot-clé dans les noms, descriptions, ingrédients, appareils, ustensiles
     const keywordFilteredRecipes = keyword.length >= 3

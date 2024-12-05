@@ -1,5 +1,5 @@
 import { displayRecipes } from "./index.js";
-import { updateDropdownLists } from "./filter.js";
+import { filterRecipesByItems, updateDropdownLists } from "./filter.js";
 import { combinedSearch } from "./search.js";
 
 /**
