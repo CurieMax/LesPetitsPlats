@@ -1,14 +1,31 @@
 import { recipeTemplate } from "../templates/recipeTemplates.js";
-import { searchRecipes } from "./algo.js";
 import { getRecipes } from "../scripts/api.js";
-import { recipeFilters } from "./filter.js";
-
+import {
+  displayItems,
+  getUniqueItems,
+  filterRecipesByItems,
+  toggleDropdown,
+  updateDropdownLists,
+} from "./filter.js";
+import { combinedSearch } from "./search.js";
+import { addTag, removeTag } from "./tag.js";
 
 
 /**
- * Affiche les recettes correspondantes dans la section
- * .recipe-section
- * 
+ * Met à jour le texte dans filter-text en fonction du nombre de recettes
+ * @param {number} count - Nombre de recettes affichées
+ */
+function updateFilterText(count) {
+  const filterTextElement = document.querySelector(".filter-text");
+  if (count === 0) {
+    filterTextElement.textContent = "Aucune recette trouvée";
+  } else {
+    filterTextElement.textContent = `${count} recettes disponibles`;
+  }
+}
+
+/**
+ * Affiche les recettes correspondantes dans la section .recipe-section
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
 export async function displayRecipes(recipes) {
@@ -22,50 +39,112 @@ export async function displayRecipes(recipes) {
     const recipeCard = recipeTemplate(recipe);
     recipeSection.appendChild(recipeCard);
   });
+
+  // Mettre à jour filter-text avec le nombre de recettes affichées
+  updateFilterText(recipes.length);
 }
 
-
-
-
-
-
 /**
- * Initialise l'écouteur d'événements de la barre de recherche.
- * Lorsque le champ de recherche est modifié, filtre les recettes
- * correspondantes en fonction de la valeur du champ de recherche.
- * Si la longueur de la valeur du champ de recherche est supérieure
- * ou égale à 3, affiche les recettes filtrées. Sinon, affiche
- * toutes les recettes.
+ * Initialise l'écouteur d'événements de la barre de recherche pour les recettes
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
 function initSearch(recipes) {
-  const searchInput = document.querySelector(".search-bar input");
+    const searchInput = document.querySelector(".search-bar input");
 
-  searchInput.addEventListener("input", (event) => {
-    const keyword = event.target.value;
+    searchInput.addEventListener("input", (event) => {
+        const keyword = event.target.value;
 
-    if (keyword.length >= 3) {
-      const filteredRecipes = searchRecipes(keyword, recipes);
-      displayRecipes(filteredRecipes);
-    } else {
-      displayRecipes(recipes);
-    }
-  });
+        // Récupérer les tags sélectionnés
+        const selectedTags = [
+            ...document
+                .getElementById("tags")
+                .querySelectorAll(".tag")
+        ].map((tag) => ({
+            item: tag.dataset.item,
+            category: tag.dataset.category
+        }));
+
+        // Recherche combinée élargie
+        const filteredRecipes = combinedSearch(keyword, selectedTags, recipes);
+
+        // Mettre à jour l'affichage des recettes
+        displayRecipes(filteredRecipes);
+
+        // Mettre à jour les listes déroulantes avec les options restantes
+        updateDropdownLists(filteredRecipes);
+    });
 }
 
+/**
+ * Initialise les filtres pour les ingrédients, appareils et ustensiles
+ * @param {Object[]} recipes - Tableau d'objets recettes
+ */
+function initFilters(recipes) {
+  // Récupérer les listes uniques d'ingrédients, d'appareils et d'ustensiles
+  const ingredients = getUniqueItems(recipes, "ingredients");
+  const appliances = getUniqueItems(recipes, "appliance");
+  const ustensils = getUniqueItems(recipes, "ustensils");
 
+  // Afficher et gérer les interactions pour chaque filtre
+  const setupFilter = (items, listId, category) => {
+    displayItems(items, listId, (item) => {
+      addTag(item, category, (removedItem) => {
+        removeTag(removedItem, category, (remainingTags) => {
+          filterRecipesByItems(remainingTags);
+        });
+      });
+
+      const selectedTags = [
+        ...document
+          .getElementById("tags")
+          .querySelectorAll(".tag"),
+      ].map((tag) => ({
+        item: tag.dataset.item,
+        category: tag.dataset.category,
+      }));
+
+      filterRecipesByItems(selectedTags);
+    });
+  };
+
+  setupFilter(ingredients, "ingredientList", "ingredients");
+  setupFilter(appliances, "applianceList", "appliances");
+  setupFilter(ustensils, "ustensilList", "ustensils");
+}
 
 /**
  * Démarrage de l'application.
- *
- * Récupère toutes les recettes et les affiche,
- * puis initialise l'écouteur d'événements de la barre de recherche.
  */
 async function init() {
-  const recipes = await getRecipes(); 
-  displayRecipes(recipes); 
-  initSearch(recipes); 
-  recipeFilters();
+  const recipes = await getRecipes();
+
+  // Stocker les recettes pour un accès global
+  localStorage.setItem("recipesData", JSON.stringify(recipes));
+
+  // Afficher les recettes initiales
+  displayRecipes(recipes);
+
+  // Initialiser la barre de recherche
+  initSearch(recipes);
+
+  // Initialiser les filtres (ingrédients, appareils et ustensiles)
+  initFilters(recipes);
+
+  // Gérer l'ouverture/fermeture des listes déroulantes
+  toggleDropdown(
+    document.querySelector(".ingredient-filter"),
+    document.getElementById("ingredientDropdown")
+  );
+
+  toggleDropdown(
+    document.querySelector(".appliance-filter"),
+    document.getElementById("applianceDropdown")
+  );
+
+  toggleDropdown(
+    document.querySelector(".ustensil-filter"),
+    document.getElementById("ustensilDropdown")
+  );
 }
 
-init(); 
+init();
