@@ -10,7 +10,6 @@ import {
 import { combinedSearch } from "./search.js";
 import { addTag, removeTag } from "./tag.js";
 
-
 /**
  * Met à jour le texte dans filter-text en fonction du nombre de recettes
  * @param {number} count - Nombre de recettes affichées
@@ -49,30 +48,28 @@ export async function displayRecipes(recipes) {
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
 function initSearch(recipes) {
-    const searchInput = document.querySelector(".search-bar input");
+  const searchInput = document.querySelector(".search-bar input");
 
-    searchInput.addEventListener("input", (event) => {
-        const keyword = event.target.value;
+  searchInput.addEventListener("input", (event) => {
+    const keyword = event.target.value;
 
-        // Récupérer les tags sélectionnés
-        const selectedTags = [
-            ...document
-                .getElementById("tags")
-                .querySelectorAll(".tag")
-        ].map((tag) => ({
-            item: tag.dataset.item,
-            category: tag.dataset.category
-        }));
+    // Récupérer les tags sélectionnés
+    const selectedTags = [
+      ...document.getElementById("tags").querySelectorAll(".tag"),
+    ].map((tag) => ({
+      item: tag.dataset.item,
+      category: tag.dataset.category,
+    }));
 
-        // Recherche combinée élargie
-        const filteredRecipes = combinedSearch(keyword, selectedTags, recipes);
+    // Recherche combinée élargie
+    const filteredRecipes = combinedSearch(keyword, selectedTags, recipes);
 
-        // Mettre à jour l'affichage des recettes
-        displayRecipes(filteredRecipes);
+    // Mettre à jour l'affichage des recettes
+    displayRecipes(filteredRecipes);
 
-        // Mettre à jour les listes déroulantes avec les options restantes
-        updateDropdownLists(filteredRecipes);
-    });
+    // Mettre à jour les listes déroulantes avec les options restantes
+    updateDropdownLists(filteredRecipes);
+  });
 }
 
 /**
@@ -95,9 +92,7 @@ function initFilters(recipes) {
       });
 
       const selectedTags = [
-        ...document
-          .getElementById("tags")
-          .querySelectorAll(".tag"),
+        ...document.getElementById("tags").querySelectorAll(".tag"),
       ].map((tag) => ({
         item: tag.dataset.item,
         category: tag.dataset.category,

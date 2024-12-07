@@ -202,7 +202,6 @@ main {
   font-size: 16px;
 }
 
-
 .choosed-tags {
   background-color: #ffd966;
 }
@@ -326,7 +325,6 @@ main {
   margin-top: 20px;
 }
 
-
 .filter-text {
   margin-left: auto;
   font-family: "Anton";
@@ -335,7 +333,6 @@ main {
   color: #1b1b1b;
   padding: 0 16px;
 }
-
 
 /* Media queries */
 @media screen and (max-width: 1270px) {
@@ -368,7 +365,5 @@ main {
   }
   .background-img {
     width: 100%;
-    
   }
-
 }

@@ -4,8 +4,6 @@ import { addTag } from "./tag.js";
 // Données des recettes (à adapter selon vos données)
 const recipes = JSON.parse(localStorage.getItem("recipesData"));
 
-
-
 /**
  * Retourne un tableau d'éléments uniques extraits de la clé `key` des recettes.
  * Si `key` vaut "ingredients", les éléments sont extraits de la propriété `ingredients`
@@ -21,7 +19,9 @@ export function getUniqueItems(recipes, key) {
 
   recipes.forEach((recipe) => {
     if (key === "ingredients") {
-      recipe.ingredients?.forEach((ingredientObj) => itemsSet.add(ingredientObj.ingredient));
+      recipe.ingredients?.forEach((ingredientObj) =>
+        itemsSet.add(ingredientObj.ingredient)
+      );
     } else if (key === "ustensils") {
       recipe.ustensils.forEach((ustensil) => itemsSet.add(ustensil));
     } else {
@@ -31,8 +31,6 @@ export function getUniqueItems(recipes, key) {
 
   return Array.from(itemsSet).sort();
 }
-
-
 
 /**
  * Affiche les éléments dans une liste HTML <ul> d'id `listId`
@@ -59,8 +57,6 @@ export function displayItems(items, listId, onClickCallback) {
   });
 }
 
-
-
 /**
  * Ajoute une fonctionnalité de recherche à un input HTML et met à jour
  * la liste d'éléments associée en conséquence.
@@ -76,7 +72,9 @@ function addSearchFunctionality(inputId, listId, items) {
 
   inputElement.addEventListener("input", (event) => {
     const searchValue = event.target.value.toLowerCase();
-    const filteredItems = items.filter((item) => item.toLowerCase().includes(searchValue));
+    const filteredItems = items.filter((item) =>
+      item.toLowerCase().includes(searchValue)
+    );
     displayItems(filteredItems, listId, (selectedItem) => {
       addTag(selectedItem, listId.replace("List", ""), (removedItem) => {
         console.log(`Tag supprimé : ${removedItem}`);
@@ -90,8 +88,6 @@ function addSearchFunctionality(inputId, listId, items) {
     });
   });
 }
-
-
 
 /**
  * Initializes and sets up filters for ingredients, appliances, and utensils.
@@ -120,12 +116,14 @@ export function setupFilters() {
     console.log(`Ustensile sélectionné : ${item}`);
   });
 
-  addSearchFunctionality("ingredientSearch", "ingredientList", uniqueIngredients);
+  addSearchFunctionality(
+    "ingredientSearch",
+    "ingredientList",
+    uniqueIngredients
+  );
   addSearchFunctionality("applianceSearch", "applianceList", uniqueAppliances);
   addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 }
-
-
 
 /**
  * Updates the dropdown lists for ingredients, appliances, and utensils
@@ -133,7 +131,7 @@ export function setupFilters() {
  * category from the filtered recipes and displays them in their respective
  * dropdown lists. Adds click event listeners to each item for tagging
  * functionality.
- * 
+ *
  * @param {Object[]} filteredRecipes - Array of filtered recipe objects
  */
 export function updateDropdownLists(filteredRecipes) {
@@ -156,13 +154,11 @@ export function updateDropdownLists(filteredRecipes) {
   });
 }
 
-
-
 /**
  * Toggles the visibility of a dropdown list when the trigger element is clicked.
  * Closes other open dropdown lists to ensure only one is open at a time.
  * Also closes the dropdown if a click occurs outside the trigger or dropdown elements.
- * 
+ *
  * @param {HTMLElement} triggerElement - The element that triggers the dropdown toggle when clicked.
  * @param {HTMLElement} dropdownElement - The dropdown element whose visibility is toggled.
  */
@@ -179,32 +175,37 @@ export function toggleDropdown(triggerElement, dropdownElement) {
     });
 
     // Basculer l'affichage de la liste
-    dropdownElement.style.display = dropdownElement.style.display === "block" ? "none" : "block";
+    dropdownElement.style.display =
+      dropdownElement.style.display === "block" ? "none" : "block";
   });
 
   // Fermer la liste si on clique en dehors
   document.addEventListener("click", (event) => {
-    if (!triggerElement.contains(event.target) && !dropdownElement.contains(event.target)) {
+    if (
+      !triggerElement.contains(event.target) &&
+      !dropdownElement.contains(event.target)
+    ) {
       dropdownElement.style.display = "none";
     }
   });
 }
 
-
-
 /**
  * Filters recipes by the selected tags.
  * Returns an object with the filtered recipes and the remaining options for each category.
- * 
+ *
  * @param {Object[]} selectedTags - The selected tags with their item and category.
  * @returns {Object} An object containing the filteredRecipes and the remainingOptions.
  */
 export function filterRecipesByItems(selectedTags) {
   const recipes = JSON.parse(localStorage.getItem("recipesData")) || [];
-  const tagsByCategory = selectedTags.reduce((acc, { item, category }) => {
-    acc[category].push(item);
-    return acc;
-  }, { ingredients: [], appliances: [], ustensils: [] });
+  const tagsByCategory = selectedTags.reduce(
+    (acc, { item, category }) => {
+      acc[category].push(item);
+      return acc;
+    },
+    { ingredients: [], appliances: [], ustensils: [] }
+  );
 
   const filteredRecipes = recipes.filter((recipe) => {
     const matchesIngredients = tagsByCategory.ingredients.every((tag) =>
