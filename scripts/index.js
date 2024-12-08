@@ -66,17 +66,17 @@ function initSearch(recipes) {
       category: tag.dataset.category,
     }));
 
-    // Recherche combinée élargie
-    const filteredRecipes = combinedSearch(keyword, selectedTags, recipes);
-
-    // Mettre à jour l'affichage des recettes
-    displayRecipes(filteredRecipes);
-
-    // Mettre à jour le texte avec le mot-clé saisi
-    updateFilterText(filteredRecipes.length, keyword);
-
-    // Mettre à jour les listes déroulantes avec les options restantes
-    updateDropdownLists(filteredRecipes);
+    // Recherche combinée élargie avec callbacks pour mise à jour
+    combinedSearch(
+      keyword,
+      selectedTags,
+      recipes,
+      (filteredRecipes) => {
+        displayRecipes(filteredRecipes);
+        updateFilterText(filteredRecipes.length, keyword);
+      },
+      updateDropdownLists
+    );
   });
 }
 
