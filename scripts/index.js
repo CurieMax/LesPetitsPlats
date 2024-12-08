@@ -14,12 +14,17 @@ import { addTag, removeTag } from "./tag.js";
  * Met à jour le texte dans filter-text en fonction du nombre de recettes
  * @param {number} count - Nombre de recettes affichées
  */
-function updateFilterText(count) {
+function updateFilterText(count, keyword = "") {
   const filterTextElement = document.querySelector(".filter-text");
-  if (count === 0) {
+  const errorMessageElement = document.querySelector(".error-message");
+
+  if (count === 0 && keyword.trim().length > 0) {
     filterTextElement.textContent = "Aucune recette trouvée";
+    errorMessageElement.style.display = "flex";
+    errorMessageElement.textContent = `Aucune recette ne contient « ${keyword} ». Vous pouvez chercher « tarte aux pommes », « poisson », etc.`;
   } else {
     filterTextElement.textContent = `${count} recettes disponibles`;
+    errorMessageElement.style.display = "none";
   }
 }
 
@@ -66,6 +71,9 @@ function initSearch(recipes) {
 
     // Mettre à jour l'affichage des recettes
     displayRecipes(filteredRecipes);
+
+    // Mettre à jour le texte avec le mot-clé saisi
+    updateFilterText(filteredRecipes.length, keyword);
 
     // Mettre à jour les listes déroulantes avec les options restantes
     updateDropdownLists(filteredRecipes);
