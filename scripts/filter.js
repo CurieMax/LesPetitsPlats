@@ -4,6 +4,11 @@ import { addTag } from "./tag.js";
 // Données des recettes (à adapter selon vos données)
 const recipes = JSON.parse(sessionStorage.getItem("recipesData"));
 
+// Extraire les éléments uniques
+const uniqueIngredients = getUniqueItems(recipes, "ingredients");
+const uniqueUstensils = getUniqueItems(recipes, "ustensils");
+const uniqueAppliances = getUniqueItems(recipes, "appliance");
+
 /**
  * Retourne un tableau d'éléments uniques extraits de la clé `key` des recettes.
  * Si `key` vaut "ingredients", les éléments sont extraits de la propriété `ingredients`
@@ -88,6 +93,9 @@ function addSearchFunctionality(inputId, listId, items) {
     });
   });
 }
+addSearchFunctionality("ingredientSearch", "ingredientList", uniqueIngredients);
+addSearchFunctionality("applianceSearch", "applianceList", uniqueAppliances);
+addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 
 /**
  * Initializes and sets up filters for ingredients, appliances, and utensils.

@@ -25,10 +25,13 @@ export function combinedSearch(
   // Filtrage par tags
   const tagsByCategory = selectedTags.reduce(
     (acc, { item, category }) => {
+      if (!acc[category]) {
+        acc[category] = []; // Initialiser le tableau pour la catégorie si nécessaire
+      }
       acc[category].push(item);
       return acc;
     },
-    { ingredients: [], appliances: [], ustensils: [] }
+    { ingredients: [], appliances: [], ustensils: [] } // Initialisation des catégories
   );
 
   const combinedFilteredRecipes = keywordFilteredRecipes.filter((recipe) => {
