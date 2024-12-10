@@ -2,7 +2,7 @@ import { displayRecipes } from "./index.js";
 import { addTag } from "./tag.js";
 
 // Données des recettes (à adapter selon vos données)
-const recipes = JSON.parse(localStorage.getItem("recipesData"));
+const recipes = JSON.parse(sessionStorage.getItem("recipesData"));
 
 /**
  * Retourne un tableau d'éléments uniques extraits de la clé `key` des recettes.
@@ -198,7 +198,7 @@ export function toggleDropdown(triggerElement, dropdownElement) {
  * @returns {Object} An object containing the filteredRecipes and the remainingOptions.
  */
 export function filterRecipesByItems(selectedTags) {
-  const recipes = JSON.parse(localStorage.getItem("recipesData")) || [];
+  const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
   const tagsByCategory = selectedTags.reduce(
     (acc, { item, category }) => {
       acc[category].push(item);

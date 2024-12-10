@@ -122,7 +122,7 @@ async function init() {
   const recipes = await getRecipes();
 
   // Stocker les recettes pour un accès global
-  localStorage.setItem("recipesData", JSON.stringify(recipes));
+  sessionStorage.setItem("recipesData", JSON.stringify(recipes));
 
   // Afficher les recettes initiales
   displayRecipes(recipes);

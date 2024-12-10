@@ -38,7 +38,7 @@ export function addTag(item, category, onCloseCallback) {
       category: tag.dataset.category,
     }));
 
-    const recipes = JSON.parse(localStorage.getItem("recipesData")) || [];
+    const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
     const filteredRecipes = combinedSearch(
       document.querySelector(".search-bar input").value,
       remainingTags,
@@ -60,7 +60,7 @@ export function addTag(item, category, onCloseCallback) {
     category: tag.dataset.category,
   }));
 
-  const recipes = JSON.parse(localStorage.getItem("recipesData")) || [];
+  const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
   const filteredRecipes = combinedSearch(
     document.querySelector(".search-bar input").value,
     selectedTags,
@@ -103,7 +103,7 @@ export function removeTag(item, category, onUpdateCallback) {
     category: tag.dataset.category,
   }));
 
-  const recipes = JSON.parse(localStorage.getItem("recipesData")) || [];
+  const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
   const filteredRecipes = combinedSearch(searchInput, selectedTags, recipes);
   displayRecipes(filteredRecipes);
 
