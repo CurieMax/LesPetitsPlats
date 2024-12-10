@@ -16,7 +16,7 @@
  */
 
 export function recipeTemplate(data) {
-  const { image, name, servings, ingredients, time, description } = data;
+  const { image, name, ingredients, time, description } = data;
 
   const picture = `assets/JSON-recipes/${image}`;
 
@@ -46,7 +46,6 @@ export function recipeTemplate(data) {
 
     const recipeName = document.createElement("h3");
     recipeName.textContent = "Recette";
-
     recipeInfo.appendChild(recipeName);
 
     const recipeTime = document.createElement("p");
@@ -68,9 +67,18 @@ export function recipeTemplate(data) {
 
     ingredients.forEach((ingredient) => {
       const listItem = document.createElement("li");
-      listItem.innerHTML = `<strong>${ingredient.ingredient}</strong> <br> ${
-        ingredient.quantity || ""
-      } ${ingredient.unit || ""}`;
+
+      const ingredientName = document.createElement("strong");
+      ingredientName.textContent = ingredient.ingredient;
+      listItem.appendChild(ingredientName);
+
+      if (ingredient.quantity || ingredient.unit) {
+        const quantityText = document.createElement("span");
+        quantityText.textContent = ` ${ingredient.quantity || ""} ${ingredient.unit || ""}`;
+        listItem.appendChild(document.createElement("br"));
+        listItem.appendChild(quantityText);
+      }
+
       ingredientsContainer.appendChild(listItem);
     });
 
