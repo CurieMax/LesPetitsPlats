@@ -104,7 +104,6 @@ addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
  * functionality, and search input functionality to filter the displayed list
  * based on user input.
  */
-
 export function setupFilters() {
   const uniqueIngredients = getUniqueItems(recipes, "ingredients");
   const uniqueAppliances = getUniqueItems(recipes, "appliance");
