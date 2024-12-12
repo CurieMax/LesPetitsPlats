@@ -2,7 +2,8 @@ import { displayRecipes } from "./index.js";
 import { addTag } from "./tag.js";
 
 // Données des recettes (à adapter selon vos données)
-const recipes = JSON.parse(sessionStorage.getItem("recipesData"));
+const recipesData = sessionStorage.getItem("recipesData");
+const recipes = recipesData ? JSON.parse(recipesData) : null;
 
 // Extraire les éléments uniques
 const uniqueIngredients = getUniqueItems(recipes, "ingredients");
@@ -20,6 +21,10 @@ const uniqueAppliances = getUniqueItems(recipes, "appliance");
  * @returns {string[]} Tableau d'éléments uniques extraits
  */
 export function getUniqueItems(recipes, key) {
+  if (!recipes) {
+    return [];
+  }
+
   const itemsSet = new Set();
 
   recipes.forEach((recipe) => {
@@ -28,15 +33,14 @@ export function getUniqueItems(recipes, key) {
         itemsSet.add(ingredientObj.ingredient)
       );
     } else if (key === "ustensils") {
-      recipe.ustensils.forEach((ustensil) => itemsSet.add(ustensil));
+      recipe.ustensils?.forEach((ustensil) => itemsSet.add(ustensil));
     } else {
-      itemsSet.add(recipe[key]);
+      if (recipe[key]) itemsSet.add(recipe[key]);
     }
   });
 
   return Array.from(itemsSet).sort();
 }
-
 /**
  * Affiche les éléments dans une liste HTML <ul> d'id `listId`
  * et gère les interactions de clic sur chaque élément.
@@ -141,21 +145,28 @@ export function setupFilters() {
  *
  * @param {Object[]} filteredRecipes - Array of filtered recipe objects
  */
-export function updateDropdownLists(filteredRecipes) {
-  const remainingOptions = {
-    ingredients: getUniqueItems(filteredRecipes, "ingredients"),
-    appliances: getUniqueItems(filteredRecipes, "appliance"),
-    ustensils: getUniqueItems(filteredRecipes, "ustensils"),
-  };
+export function updateDropdownLists(remainingOptions) {
+  if (
+    !remainingOptions ||
+    !Array.isArray(remainingOptions.ingredients) ||
+    !Array.isArray(remainingOptions.appliances) ||
+    !Array.isArray(remainingOptions.ustensils)
+  ) {
+    console.error("Invalid remainingOptions :", remainingOptions);
+    return;
+  }
 
+  // Met à jour la liste des ingrédients
   displayItems(remainingOptions.ingredients, "ingredientList", (ingredient) => {
     addTag(ingredient, "ingredients", () => {});
   });
 
+  // Met à jour la liste des appareils
   displayItems(remainingOptions.appliances, "applianceList", (appliance) => {
     addTag(appliance, "appliances", () => {});
   });
 
+  // Met à jour la liste des ustensiles
   displayItems(remainingOptions.ustensils, "ustensilList", (ustensil) => {
     addTag(ustensil, "ustensils", () => {});
   });

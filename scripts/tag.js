@@ -11,11 +11,11 @@ import { combinedSearch } from "./search.js";
 export function addTag(item, category, onCloseCallback) {
   const tagContainer = document.getElementById("tags");
 
-  // Vérifiez si le tag existe déjà
+  // Vérifiez si le tag existe déjà pour éviter les doublons
   const existingTag = Array.from(tagContainer.children).find(
     (tag) => tag.dataset.item === item && tag.dataset.category === category
   );
-  if (existingTag) return; // Éviter les doublons
+  if (existingTag) return;
 
   // Ajout du tag
   const tag = document.createElement("div");
@@ -27,67 +27,50 @@ export function addTag(item, category, onCloseCallback) {
   const closeBtn = document.createElement("i");
   closeBtn.classList.add("fa-solid", "fa-circle-xmark", "close-btn");
   closeBtn.addEventListener("click", () => {
-    tagContainer.removeChild(tag); // Supprimer le tag
+    tagContainer.removeChild(tag);
     onCloseCallback(item, category);
 
-    // Mettre à jour la recherche et les listes
-    const remainingTags = [
-      ...document.getElementById("tags").querySelectorAll(".tag"),
-    ].map((tag) => ({
+    // Mise à jour des recettes et des listes déroulantes
+    const selectedTags = Array.from(tagContainer.children).map((tag) => ({
       item: tag.dataset.item,
       category: tag.dataset.category,
     }));
 
-    const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
-    const filteredRecipes = combinedSearch(
-      document.querySelector(".search-bar input").value,
-      remainingTags,
-      recipes
-    );
-
-    displayRecipes(filteredRecipes);
-    updateDropdownLists(filteredRecipes);
+    const searchInput = document.querySelector(".search-bar input").value;
+    updateRecipesAndDropdowns(selectedTags, searchInput);
   });
 
   tag.appendChild(closeBtn);
   tagContainer.appendChild(tag);
 
-  // Mise à jour des résultats
-  const selectedTags = [
-    ...document.getElementById("tags").querySelectorAll(".tag"),
-  ].map((tag) => ({
+  // Mise à jour des résultats après ajout
+  const selectedTags = Array.from(tagContainer.children).map((tag) => ({
     item: tag.dataset.item,
     category: tag.dataset.category,
   }));
 
-  const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
-  const filteredRecipes = combinedSearch(
-    document.querySelector(".search-bar input").value,
-    selectedTags,
-    recipes
-  );
-
-  displayRecipes(filteredRecipes);
-  updateDropdownLists(filteredRecipes);
+  const searchInput = document.querySelector(".search-bar input").value;
+  updateRecipesAndDropdowns(selectedTags, searchInput);
 }
 
+
 /**
- * Supprime un tag spécifique et met à jour les recettes
+ * Supprime un tag de la liste des tags
  * @param {string} item - Élément à supprimer
  * @param {string} category - Catégorie du tag
- * @param {Function} onUpdateCallback - Fonction exécutée après mise à jour
+ * @param {Function} onUpdateCallback - Fonction à exécuter avec la liste des tags restants
  */
+
 export function removeTag(item, category, onUpdateCallback) {
   const tagContainer = document.getElementById("tags");
 
+  // Recherche et suppression du tag
   const tag = Array.from(tagContainer.children).find(
-    (t) => t.dataset.item === item && t.dataset.category === category //chaque élément représenté par un "t" est un enfant de "tagContainer"
+    (t) => t.dataset.item === item && t.dataset.category === category
   );
+  if (tag) tagContainer.removeChild(tag);
 
-  if (tag) {
-    tagContainer.removeChild(tag);
-  }
-
+  // Récupération des tags restants
   const remainingTags = Array.from(tagContainer.children).map((tag) => ({
     item: tag.dataset.item,
     category: tag.dataset.category,
@@ -95,19 +78,57 @@ export function removeTag(item, category, onUpdateCallback) {
 
   onUpdateCallback(remainingTags);
 
+  // Mise à jour des recettes et des listes déroulantes
   const searchInput = document.querySelector(".search-bar input").value;
-  const selectedTags = [
-    ...document.getElementById("tags").querySelectorAll(".tag"),
-  ].map((tag) => ({
-    item: tag.dataset.item,
-    category: tag.dataset.category,
-  }));
+  const { filteredRecipes, remainingOptions } = filterRecipesByItems(
+    remainingTags
+  );
 
+  // Vérifie et affiche les recettes filtrées
+  if (Array.isArray(filteredRecipes)) {
+    displayRecipes(filteredRecipes);
+  } else {
+    console.error("filteredRecipes n'est pas un tableau :", filteredRecipes);
+  }
+
+  // Mise à jour des listes déroulantes
+  if (remainingOptions) {
+    updateDropdownLists(remainingOptions);
+  } else {
+    console.error("remainingOptions est indéfini ou invalide :", remainingOptions);
+  }
+}
+
+
+
+/**
+ * Met à jour les recettes affichées et les listes déroulantes en fonction des
+ * tags actuels et de la valeur de recherche.
+ *
+ * @param {Object[]} tags - Tableau d'objets définissant les tags actuels
+ * @param {string} searchInput - Valeur de recherche actuelle
+ */
+function updateRecipesAndDropdowns(tags, searchInput) {
   const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
-  const filteredRecipes = combinedSearch(searchInput, selectedTags, recipes);
+  if (!Array.isArray(recipes)) {
+    console.error("Invalid recipes data. Expected an array.");
+    return;
+  }
+
+  // Filtre les recettes
+  const filteredRecipes = combinedSearch(searchInput, tags, recipes);
+  if (!Array.isArray(filteredRecipes)) {
+    console.error("filteredRecipes n'est pas un tableau :", filteredRecipes);
+    return;
+  }
+
   displayRecipes(filteredRecipes);
 
-  // Met à jour les options restantes après suppression
-  const { remainingOptions } = filterRecipesByItems(remainingTags);
-  updateDropdownLists(remainingOptions); // Met à jour les listes déroulantes
+  // Extrait et met à jour les options restantes
+  const { remainingOptions } = filterRecipesByItems(tags);
+  if (remainingOptions) {
+    updateDropdownLists(remainingOptions);
+  } else {
+    console.error("remainingOptions est indéfini ou invalide :", remainingOptions);
+  }
 }
