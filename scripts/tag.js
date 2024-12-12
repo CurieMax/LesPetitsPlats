@@ -53,7 +53,6 @@ export function addTag(item, category, onCloseCallback) {
   updateRecipesAndDropdowns(selectedTags, searchInput);
 }
 
-
 /**
  * Supprime un tag de la liste des tags
  * @param {string} item - Élément à supprimer
@@ -79,9 +78,8 @@ export function removeTag(item, category, onUpdateCallback) {
   onUpdateCallback(remainingTags);
 
   // Mise à jour des recettes et des listes déroulantes
-  const { filteredRecipes, remainingOptions } = filterRecipesByItems(
-    remainingTags
-  );
+  const { filteredRecipes, remainingOptions } =
+    filterRecipesByItems(remainingTags);
 
   // Vérifie et affiche les recettes filtrées
   if (Array.isArray(filteredRecipes)) {
@@ -94,11 +92,12 @@ export function removeTag(item, category, onUpdateCallback) {
   if (remainingOptions) {
     updateDropdownLists(remainingOptions);
   } else {
-    console.error("remainingOptions est indéfini ou invalide :", remainingOptions);
+    console.error(
+      "remainingOptions est indéfini ou invalide :",
+      remainingOptions
+    );
   }
 }
-
-
 
 /**
  * Met à jour les recettes affichées et les listes déroulantes en fonction des
@@ -128,6 +127,9 @@ function updateRecipesAndDropdowns(tags, searchInput) {
   if (remainingOptions) {
     updateDropdownLists(remainingOptions);
   } else {
-    console.error("remainingOptions est indéfini ou invalide :", remainingOptions);
+    console.error(
+      "remainingOptions est indéfini ou invalide :",
+      remainingOptions
+    );
   }
 }
