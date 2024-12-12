@@ -79,7 +79,6 @@ export function removeTag(item, category, onUpdateCallback) {
   onUpdateCallback(remainingTags);
 
   // Mise à jour des recettes et des listes déroulantes
-  const searchInput = document.querySelector(".search-bar input").value;
   const { filteredRecipes, remainingOptions } = filterRecipesByItems(
     remainingTags
   );
