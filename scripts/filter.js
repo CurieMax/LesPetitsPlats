@@ -41,8 +41,6 @@ export function getUniqueItems(recipes, key) {
   return Array.from(itemsSet).sort();
 }
 
-
-
 /**
  * Affiche les éléments uniques dans la liste HTML <ul> et gère les clics.
  */
@@ -122,7 +120,11 @@ export function setupFilters() {
     console.log(`Ustensile sélectionné : ${item}`);
   });
 
-  addSearchFunctionality("ingredientSearch", "ingredientList", uniqueIngredients);
+  addSearchFunctionality(
+    "ingredientSearch",
+    "ingredientList",
+    uniqueIngredients
+  );
   addSearchFunctionality("applianceSearch", "applianceList", uniqueAppliances);
   addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 }
