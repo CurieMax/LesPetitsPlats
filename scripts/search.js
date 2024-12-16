@@ -1,3 +1,5 @@
+import { searchRecipes } from "./algo.js";
+
 export function combinedSearch(
   keyword,
   selectedTags,
@@ -8,18 +10,7 @@ export function combinedSearch(
   // Recherche par mot-clé dans les noms, descriptions, ingrédients, appareils, ustensiles
   const keywordFilteredRecipes =
     keyword.length >= 3
-      ? recipes.filter(
-          (recipe) =>
-            recipe.name.toLowerCase().includes(keyword.toLowerCase()) ||
-            recipe.description.toLowerCase().includes(keyword.toLowerCase()) ||
-            recipe.ingredients.some((ing) =>
-              ing.ingredient.toLowerCase().includes(keyword.toLowerCase())
-            ) ||
-            recipe.appliance.toLowerCase().includes(keyword.toLowerCase()) ||
-            recipe.ustensils.some((ustensil) =>
-              ustensil.toLowerCase().includes(keyword.toLowerCase())
-            )
-        )
+      ? searchRecipes(keyword, recipes)
       : recipes;
 
   // Filtrage par tags
