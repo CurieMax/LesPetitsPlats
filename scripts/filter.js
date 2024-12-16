@@ -2,29 +2,19 @@ import { displayRecipes } from "./index.js";
 import { addTag } from "./tag.js";
 
 // Données des recettes (à adapter selon vos données)
-const recipesData = sessionStorage.getItem("recipesData");
-const recipes = recipesData ? JSON.parse(recipesData) : null;
+const recipes = JSON.parse(sessionStorage.getItem("recipesData"));
 
-// Extraire les éléments uniques
+// Générer les listes uniques
 const uniqueIngredients = getUniqueItems(recipes, "ingredients");
-const uniqueUstensils = getUniqueItems(recipes, "ustensils");
 const uniqueAppliances = getUniqueItems(recipes, "appliance");
-
+const uniqueUstensils = getUniqueItems(recipes, "ustensils");
 /**
  * Retourne un tableau d'éléments uniques extraits de la clé `key` des recettes.
- * Si `key` vaut "ingredients", les éléments sont extraits de la propriété `ingredients`
- * de chaque recette, via la propriété `ingredient` des objets contenus dans le tableau.
- * Si `key` vaut "ustensils", les éléments sont extraits de la propriété `ustensils` de chaque recette.
- * Sinon, les éléments sont extraits de la propriété `key` de chaque recette.
  * @param {Object[]} recipes - Tableau de recettes
  * @param {string} key - Clé des éléments à extraire
  * @returns {string[]} Tableau d'éléments uniques extraits
  */
 export function getUniqueItems(recipes, key) {
-  if (!recipes) {
-    return [];
-  }
-
   const itemsSet = new Set();
 
   recipes.forEach((recipe) => {
@@ -42,18 +32,23 @@ export function getUniqueItems(recipes, key) {
   return Array.from(itemsSet).sort();
 }
 /**
- * Affiche les éléments dans une liste HTML <ul> d'id `listId`
- * et gère les interactions de clic sur chaque élément.
- * Lorsqu'un élément est cliqué, il est ajouté à la liste des tags
- * et la fonction `onClickCallback` est exécutée avec l'élément cliqué
- * comme argument.
- * @param {string[]} items - Tableau d'éléments à afficher
- * @param {string} listId - Identifiant de la liste HTML <ul>
- * @param {Function} onClickCallback - Fonction exécutée lors d'un clic sur un élément
+ * Affiche les éléments d'une liste dans un élément HTML (par exemple, un <ul>)
+ * et ajoute un listener pour gérer les clics sur chaque élément.
+ * Si la liste est vide, affiche un message "Aucun résultat trouvé".
+ * @param {string[]} items - Tableau de éléments à afficher
+ * @param {string} listId - ID de l'élément HTML où afficher les éléments
+ * @param {Function} onClickCallback - Fonction à exécuter lors d'un clic sur un élément
  */
 export function displayItems(items, listId, onClickCallback) {
   const list = document.getElementById(listId);
   list.innerHTML = ""; // Réinitialiser la liste
+
+  if (items.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "Aucun résultat trouvé";
+    list.appendChild(li);
+    return;
+  }
 
   items.forEach((item) => {
     const li = document.createElement("li");
@@ -67,14 +62,10 @@ export function displayItems(items, listId, onClickCallback) {
 }
 
 /**
- * Ajoute une fonctionnalité de recherche à un input HTML et met à jour
- * la liste d'éléments associée en conséquence.
- * Lorsqu'un élément est sélectionné, il est ajouté à la liste des tags
- * et la fonction `onClickCallback` est exécutée avec l'élément cliqué
- * comme argument.
- * @param {string} inputId - Identifiant de l'élément HTML input
- * @param {string} listId - Identifiant de la liste HTML <ul>
- * @param {string[]} items - Tableau d'éléments à afficher
+ * Ajoute la fonctionnalité de recherche à un champ de formulaire et à une liste HTML
+ * @param {string} inputId - ID du champ de formulaire de recherche
+ * @param {string} listId - ID de la liste HTML <ul> ciblée
+ * @param {string[]} items - Tableau d'éléments à filtrer
  */
 function addSearchFunctionality(inputId, listId, items) {
   const inputElement = document.getElementById(inputId);
@@ -84,6 +75,7 @@ function addSearchFunctionality(inputId, listId, items) {
     const filteredItems = items.filter((item) =>
       item.toLowerCase().includes(searchValue)
     );
+
     displayItems(filteredItems, listId, (selectedItem) => {
       addTag(selectedItem, listId.replace("List", ""), (removedItem) => {
         console.log(`Tag supprimé : ${removedItem}`);
@@ -91,22 +83,24 @@ function addSearchFunctionality(inputId, listId, items) {
     });
   });
 
+  // Afficher les éléments initiaux
   displayItems(items, listId, (selectedItem) => {
     addTag(selectedItem, listId.replace("List", ""), (removedItem) => {
       console.log(`Tag supprimé : ${removedItem}`);
     });
   });
 }
+
+// Initialiser les fonctionnalités de recherche
 addSearchFunctionality("ingredientSearch", "ingredientList", uniqueIngredients);
 addSearchFunctionality("applianceSearch", "applianceList", uniqueAppliances);
 addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 
 /**
  * Initializes and sets up filters for ingredients, appliances, and utensils.
- * Retrieves unique items from the recipes data and displays them in their
- * respective HTML lists. Adds click event listeners to each item for tagging
- * functionality, and search input functionality to filter the displayed list
- * based on user input.
+ * Retrieves unique items from the recipes data and displays them in their respective lists.
+ * Adds search functionality to the input fields for filtering options in each category.
+ * Handles user interactions by adding or removing tags and logs actions to the console.
  */
 export function setupFilters() {
   const uniqueIngredients = getUniqueItems(recipes, "ingredients");
@@ -137,13 +131,9 @@ export function setupFilters() {
 }
 
 /**
- * Updates the dropdown lists for ingredients, appliances, and utensils
- * based on the provided filtered recipes. Extracts unique options for each
- * category from the filtered recipes and displays them in their respective
- * dropdown lists. Adds click event listeners to each item for tagging
- * functionality.
- *
- * @param {Object[]} filteredRecipes - Array of filtered recipe objects
+ * Met à jour les listes déroulantes des filtres pour les ingrédients, appareils et ustensiles
+ * en fonction des recettes filtrées.
+ * @param {Object[]} filteredRecipes - Tableau des recettes filtrées par les tags actuels
  */
 export function updateDropdownLists(remainingOptions) {
   if (
@@ -180,7 +170,6 @@ export function updateDropdownLists(remainingOptions) {
  * @param {HTMLElement} triggerElement - The element that triggers the dropdown toggle when clicked.
  * @param {HTMLElement} dropdownElement - The dropdown element whose visibility is toggled.
  */
-
 export function toggleDropdown(triggerElement, dropdownElement) {
   triggerElement.addEventListener("click", (event) => {
     event.stopPropagation();
