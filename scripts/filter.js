@@ -1,8 +1,9 @@
 import { displayRecipes } from "./index.js";
 import { addTag } from "./tag.js";
 
-// Données des recettes (à adapter selon vos données)
-const recipes = JSON.parse(sessionStorage.getItem("recipesData"));
+// Récupération des données des recettes depuis sessionStorage
+const recipesData = sessionStorage.getItem("recipesData");
+const recipes = recipesData ? JSON.parse(recipesData) : [];
 
 // Générer les listes uniques
 const uniqueIngredients = getUniqueItems(recipes, "ingredients");
@@ -15,6 +16,10 @@ const uniqueUstensils = getUniqueItems(recipes, "ustensils");
  * @returns {string[]} Tableau d'éléments uniques extraits
  */
 export function getUniqueItems(recipes, key) {
+  if (!Array.isArray(recipes)) {
+    return []; // Retourne un tableau vide en cas d'erreur
+  }
+
   const itemsSet = new Set();
 
   recipes.forEach((recipe) => {
@@ -25,12 +30,13 @@ export function getUniqueItems(recipes, key) {
     } else if (key === "ustensils") {
       recipe.ustensils?.forEach((ustensil) => itemsSet.add(ustensil));
     } else {
-      if (recipe[key]) itemsSet.add(recipe[key]);
+      itemsSet.add(recipe[key]);
     }
   });
 
   return Array.from(itemsSet).sort();
 }
+
 /**
  * Affiche les éléments d'une liste dans un élément HTML (par exemple, un <ul>)
  * et ajoute un listener pour gérer les clics sur chaque élément.
@@ -135,28 +141,21 @@ export function setupFilters() {
  * en fonction des recettes filtrées.
  * @param {Object[]} filteredRecipes - Tableau des recettes filtrées par les tags actuels
  */
-export function updateDropdownLists(remainingOptions) {
-  if (
-    !remainingOptions ||
-    !Array.isArray(remainingOptions.ingredients) ||
-    !Array.isArray(remainingOptions.appliances) ||
-    !Array.isArray(remainingOptions.ustensils)
-  ) {
-    console.error("Invalid remainingOptions :", remainingOptions);
-    return;
-  }
+export function updateDropdownLists(filteredRecipes) {
+  const remainingOptions = {
+    ingredients: getUniqueItems(filteredRecipes, "ingredients"),
+    appliances: getUniqueItems(filteredRecipes, "appliance"),
+    ustensils: getUniqueItems(filteredRecipes, "ustensils"),
+  };
 
-  // Met à jour la liste des ingrédients
   displayItems(remainingOptions.ingredients, "ingredientList", (ingredient) => {
     addTag(ingredient, "ingredients", () => {});
   });
 
-  // Met à jour la liste des appareils
   displayItems(remainingOptions.appliances, "applianceList", (appliance) => {
     addTag(appliance, "appliances", () => {});
   });
 
-  // Met à jour la liste des ustensiles
   displayItems(remainingOptions.ustensils, "ustensilList", (ustensil) => {
     addTag(ustensil, "ustensils", () => {});
   });
