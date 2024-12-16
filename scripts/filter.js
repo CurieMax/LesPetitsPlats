@@ -5,7 +5,6 @@ import { addTag } from "./tag.js";
 const recipesData = sessionStorage.getItem("recipesData");
 const recipes = recipesData ? JSON.parse(recipesData) : [];
 
-
 // Générer les listes uniques
 const uniqueIngredients = getUniqueItems(recipes, "ingredients");
 const uniqueAppliances = getUniqueItems(recipes, "appliance");
@@ -38,7 +37,6 @@ export function getUniqueItems(recipes, key) {
   return Array.from(itemsSet).sort();
 }
 
-
 /**
  * Affiche les éléments d'une liste dans un élément HTML (par exemple, un <ul>)
  * et ajoute un listener pour gérer les clics sur chaque élément.
@@ -68,8 +66,6 @@ export function displayItems(items, listId, onClickCallback) {
     list.appendChild(li);
   });
 }
-
-
 
 /**
  * Ajoute la fonctionnalité de recherche à un champ de formulaire et à une liste HTML
@@ -106,8 +102,6 @@ addSearchFunctionality("ingredientSearch", "ingredientList", uniqueIngredients);
 addSearchFunctionality("applianceSearch", "applianceList", uniqueAppliances);
 addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 
-
-
 /**
  * Initializes and sets up filters for ingredients, appliances, and utensils.
  * Retrieves unique items from the recipes data and displays them in their respective lists.
@@ -142,8 +136,6 @@ export function setupFilters() {
   addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 }
 
-
-
 /**
  * Met à jour les listes déroulantes des filtres pour les ingrédients, appareils et ustensiles
  * en fonction des recettes filtrées.
@@ -177,7 +169,6 @@ export function updateDropdownLists(filteredRecipes) {
  * @param {HTMLElement} triggerElement - The element that triggers the dropdown toggle when clicked.
  * @param {HTMLElement} dropdownElement - The dropdown element whose visibility is toggled.
  */
-
 export function toggleDropdown(triggerElement, dropdownElement) {
   triggerElement.addEventListener("click", (event) => {
     event.stopPropagation();
