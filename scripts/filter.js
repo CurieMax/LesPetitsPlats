@@ -5,9 +5,6 @@ import { addTag } from "./tag.js";
 const recipesData = sessionStorage.getItem("recipesData");
 const recipes = recipesData ? JSON.parse(recipesData) : [];
 
-if (!recipes.length) {
-  console.error("Aucune donnée de recettes trouvée dans sessionStorage.");
-}
 
 // Générer les listes uniques
 const uniqueIngredients = getUniqueItems(recipes, "ingredients");
@@ -41,8 +38,14 @@ export function getUniqueItems(recipes, key) {
   return Array.from(itemsSet).sort();
 }
 
+
 /**
- * Affiche les éléments uniques dans la liste HTML <ul> et gère les clics.
+ * Affiche les éléments d'une liste dans un élément HTML (par exemple, un <ul>)
+ * et ajoute un listener pour gérer les clics sur chaque élément.
+ * Si la liste est vide, affiche un message "Aucun résultat trouvé".
+ * @param {string[]} items - Tableau de éléments à afficher
+ * @param {string} listId - ID de l'élément HTML où afficher les éléments
+ * @param {Function} onClickCallback - Fonction à exécuter lors d'un clic sur un élément
  */
 export function displayItems(items, listId, onClickCallback) {
   const list = document.getElementById(listId);
@@ -66,8 +69,13 @@ export function displayItems(items, listId, onClickCallback) {
   });
 }
 
+
+
 /**
- * Ajoute une fonctionnalité de recherche à un input HTML et met à jour la liste.
+ * Ajoute la fonctionnalité de recherche à un champ de formulaire et à une liste HTML
+ * @param {string} inputId - ID du champ de formulaire de recherche
+ * @param {string} listId - ID de la liste HTML <ul> ciblée
+ * @param {string[]} items - Tableau d'éléments à filtrer
  */
 function addSearchFunctionality(inputId, listId, items) {
   const inputElement = document.getElementById(inputId);
@@ -98,8 +106,13 @@ addSearchFunctionality("ingredientSearch", "ingredientList", uniqueIngredients);
 addSearchFunctionality("applianceSearch", "applianceList", uniqueAppliances);
 addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 
+
+
 /**
- * Initialise les filtres et affiche les éléments correspondants.
+ * Initializes and sets up filters for ingredients, appliances, and utensils.
+ * Retrieves unique items from the recipes data and displays them in their respective lists.
+ * Adds search functionality to the input fields for filtering options in each category.
+ * Handles user interactions by adding or removing tags and logs actions to the console.
  */
 export function setupFilters() {
   const uniqueIngredients = getUniqueItems(recipes, "ingredients");
@@ -129,8 +142,12 @@ export function setupFilters() {
   addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 }
 
+
+
 /**
- * Met à jour les listes déroulantes selon les recettes filtrées.
+ * Met à jour les listes déroulantes des filtres pour les ingrédients, appareils et ustensiles
+ * en fonction des recettes filtrées.
+ * @param {Object[]} filteredRecipes - Tableau des recettes filtrées par les tags actuels
  */
 export function updateDropdownLists(filteredRecipes) {
   const remainingOptions = {
