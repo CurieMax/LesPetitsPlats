@@ -1,37 +1,36 @@
-import { searchRecipes, searchRecipesByTags } from "./algo.js";
-import { updateDropdownLists } from "./filter.js";
-import { displayRecipes } from "./index.js";
+import { searchRecipes } from "./algo.js";
 
 /**
- * Effectue une recherche combinée dans les recettes avec un mot-clé et des tags.
- * La recherche par mot-clé est faite dans les noms, descriptions, ingrédients, appareils, ustensiles
- * et elle est combinée avec un filtrage par les tags sélectionnés.
- * La fonction prend en paramètres le mot-clé, les tags sélectionnés, les recettes à filtrer, une fonction
- * de mise à jour pour afficher les résultats et une fonction de mise à jour pour les listes déroulantes.
- * @param {string} keyword - Mot-clé de recherche
- * @param {Object[]} selectedTags - Tableau d'objets tags sélectionnés
- * @param {Object[]} recipes - Tableau d'objets recettes à filtrer
- * @param {function} displayCallback - Fonction de mise à jour pour afficher les résultats
- * @param {function} updateDropdownCallback - Fonction de mise à jour pour les listes déroulantes
- * @returns {Object[]} Tableau des recettes filtrées par la recherche combinée
+ * Effectue une recherche combinée sur les recettes.
+ * La fonction renvoie un tableau de recettes qui contiennent le mot-clé
+ * dans le nom, les ingrédients, la description, les appareils ou les ustensiles
+ * ET qui contiennent les tags sélectionnés.
+ * La fonction prend en argument le mot-clé, les tags sélectionnés, le tableau
+ * des recettes, une fonction de callback pour mettre à jour la liste
+ * des recettes affichées et une fonction de callback pour mettre à jour
+ * les listes déroulantes des filtres.
+ * @param {string} keyword - Mot-clé à recherche
+ * @param {Object[]} selectedTags - Tableau des tags sélectionnés
+ * @param {Object[]} recipes - Tableau des recettes
+ * @param {function} displayCallback - Fonction de callback pour mettre à jour
+ * la liste des recettes affichées
+ * @param {function} updateDropdownCallback - Fonction de callback pour mettre
+ * à jour les listes déroulantes des filtres
+ * @returns {Object[]} Tableau des recettes qui contiennent le mot-clé et les tags
  */
-export function combinedSearch(keyword, recipes) {
-  let inputKeyword = document.querySelector(".search-bar input").value;
-
+export function combinedSearch(
+  keyword,
+  selectedTags,
+  recipes,
+  displayCallback,
+  updateDropdownCallback
+) {
   // Recherche par mot-clé dans les noms, descriptions, ingrédients, appareils, ustensiles
   const keywordFilteredRecipes =
-    inputKeyword.length >= 3 ? searchRecipes(inputKeyword, recipes) : recipes;
+    keyword.length >= 3 ? searchRecipes(keyword, recipes) : recipes;
 
-  // récuperation des tags restants
-  const remainingTags = [
-    ...document.getElementById("tags").querySelectorAll(".tag"),
-  ].map((tag) => ({
-    item: tag.dataset.item,
-    category: tag.dataset.category,
-  }));
-
-  // Regroupement des tags par catégories
-  const tagsByCategory = remainingTags.reduce(
+  // Filtrage par tags
+  const tagsByCategory = selectedTags.reduce(
     (acc, { item, category }) => {
       if (!acc[category]) {
         acc[category] = []; // Initialiser le tableau pour la catégorie si nécessaire
@@ -42,15 +41,25 @@ export function combinedSearch(keyword, recipes) {
     { ingredients: [], appliances: [], ustensils: [] } // Initialisation des catégories
   );
 
-  console.log("tagsByCategory", tagsByCategory);
+  const combinedFilteredRecipes = keywordFilteredRecipes.filter((recipe) => {
+    const matchesIngredients = tagsByCategory.ingredients.every((tag) =>
+      recipe.ingredients.some((ing) => ing.ingredient === tag)
+    );
 
-  const combinedFilteredRecipes = searchRecipesByTags(
-    tagsByCategory,
-    keywordFilteredRecipes
-  );
-  console.log("combinedFilteredRecipes", combinedFilteredRecipes);
-  displayRecipes(combinedFilteredRecipes);
-  updateDropdownLists(combinedFilteredRecipes);
+    const matchesAppliances = tagsByCategory.appliances.every(
+      (tag) => recipe.appliance === tag
+    );
+
+    const matchesUstensils = tagsByCategory.ustensils.every((tag) =>
+      recipe.ustensils.includes(tag)
+    );
+
+    return matchesIngredients && matchesAppliances && matchesUstensils;
+  });
+
+  // Appeler les fonctions de mise à jour
+  if (displayCallback) displayCallback(combinedFilteredRecipes);
+  if (updateDropdownCallback) updateDropdownCallback(combinedFilteredRecipes);
 
   return combinedFilteredRecipes;
 }
