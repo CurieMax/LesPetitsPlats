@@ -75,6 +75,8 @@ export function displayItems(items, listId, onClickCallback) {
  */
 function addSearchFunctionality(inputId, listId, items) {
   const inputElement = document.getElementById(inputId);
+  
+  
 
   inputElement.addEventListener("input", (event) => {
     const searchValue = event.target.value.toLowerCase();
@@ -83,6 +85,7 @@ function addSearchFunctionality(inputId, listId, items) {
     );
 
     displayItems(filteredItems, listId, (selectedItem) => {
+
       addTag(selectedItem, listId.replace("List", ""), (removedItem) => {
         console.log(`Tag supprimé : ${removedItem}`);
       });

@@ -1,3 +1,7 @@
+import { searchRecipes, searchRecipesByTags } from "./algo.js";
+import { updateDropdownLists } from "./filter.js";
+import { displayRecipes } from "./index.js";
+
 /**
  * Effectue une recherche combinée dans les recettes avec un mot-clé et des tags.
  * La recherche par mot-clé est faite dans les noms, descriptions, ingrédients, appareils, ustensiles
@@ -11,32 +15,23 @@
  * @param {function} updateDropdownCallback - Fonction de mise à jour pour les listes déroulantes
  * @returns {Object[]} Tableau des recettes filtrées par la recherche combinée
  */
-export function combinedSearch(
-  keyword,
-  selectedTags,
-  recipes,
-  displayCallback,
-  updateDropdownCallback
-) {
+export function combinedSearch(keyword, recipes) {
+  let inputKeyword = document.querySelector(".search-bar input").value;
+
   // Recherche par mot-clé dans les noms, descriptions, ingrédients, appareils, ustensiles
   const keywordFilteredRecipes =
-    keyword.length >= 3
-      ? recipes.filter(
-          (recipe) =>
-            recipe.name.toLowerCase().includes(keyword.toLowerCase()) ||
-            recipe.description.toLowerCase().includes(keyword.toLowerCase()) ||
-            recipe.ingredients.some((ing) =>
-              ing.ingredient.toLowerCase().includes(keyword.toLowerCase())
-            ) ||
-            recipe.appliance.toLowerCase().includes(keyword.toLowerCase()) ||
-            recipe.ustensils.some((ustensil) =>
-              ustensil.toLowerCase().includes(keyword.toLowerCase())
-            )
-        )
-      : recipes;
+    inputKeyword.length >= 3 ? searchRecipes(inputKeyword, recipes) : recipes;
 
-  // Filtrage par tags
-  const tagsByCategory = selectedTags.reduce(
+  // récuperation des tags restants
+  const remainingTags = [
+    ...document.getElementById("tags").querySelectorAll(".tag"),
+  ].map((tag) => ({
+    item: tag.dataset.item,
+    category: tag.dataset.category,
+  }));
+
+  // Regroupement des tags par catégories
+  const tagsByCategory = remainingTags.reduce(
     (acc, { item, category }) => {
       if (!acc[category]) {
         acc[category] = []; // Initialiser le tableau pour la catégorie si nécessaire
@@ -47,25 +42,15 @@ export function combinedSearch(
     { ingredients: [], appliances: [], ustensils: [] } // Initialisation des catégories
   );
 
-  const combinedFilteredRecipes = keywordFilteredRecipes.filter((recipe) => {
-    const matchesIngredients = tagsByCategory.ingredients.every((tag) =>
-      recipe.ingredients.some((ing) => ing.ingredient === tag)
-    );
+  console.log("tagsByCategory", tagsByCategory);
 
-    const matchesAppliances = tagsByCategory.appliances.every(
-      (tag) => recipe.appliance === tag
-    );
-
-    const matchesUstensils = tagsByCategory.ustensils.every((tag) =>
-      recipe.ustensils.includes(tag)
-    );
-
-    return matchesIngredients && matchesAppliances && matchesUstensils;
-  });
-
-  // Appeler les fonctions de mise à jour
-  if (displayCallback) displayCallback(combinedFilteredRecipes);
-  if (updateDropdownCallback) updateDropdownCallback(combinedFilteredRecipes);
+  const combinedFilteredRecipes = searchRecipesByTags(
+    tagsByCategory,
+    keywordFilteredRecipes
+  );
+  console.log("combinedFilteredRecipes", combinedFilteredRecipes);
+  displayRecipes(combinedFilteredRecipes);
+  updateDropdownLists(combinedFilteredRecipes);
 
   return combinedFilteredRecipes;
 }

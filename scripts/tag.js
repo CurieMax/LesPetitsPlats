@@ -9,6 +9,7 @@ import { combinedSearch } from "./search.js";
  * @param {Function} onCloseCallback - Fonction à exécuter lors de la suppression d'un tag
  */
 export function addTag(item, category, onCloseCallback) {
+  console.log('addTag', item);
   const tagContainer = document.getElementById("tags");
 
   // Vérifiez si le tag existe déjà
@@ -16,6 +17,19 @@ export function addTag(item, category, onCloseCallback) {
     (tag) => tag.dataset.item === item && tag.dataset.category === category
   );
   if (existingTag) return; // Éviter les doublons
+
+  // Uniformiser les categories
+  if (category === "appliance") {
+    category = 'appliances';
+  }
+
+  if (category === "ustensil") {
+    category = 'ustensils';
+  }
+
+  if (category === "ingredient") {
+    category = 'ingredients';
+  }
 
   // Ajout du tag
   const tag = document.createElement("div");
@@ -39,14 +53,11 @@ export function addTag(item, category, onCloseCallback) {
     }));
 
     const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
-    const filteredRecipes = combinedSearch(
+    combinedSearch(
       document.querySelector(".search-bar input").value,
       remainingTags,
       recipes
     );
-
-    displayRecipes(filteredRecipes);
-    updateDropdownLists(filteredRecipes);
   });
 
   tag.appendChild(closeBtn);
