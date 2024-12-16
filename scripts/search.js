@@ -1,5 +1,23 @@
 import { searchRecipes } from "./algo.js";
 
+/**
+ * Effectue une recherche combinée sur les recettes.
+ * La fonction renvoie un tableau de recettes qui contiennent le mot-clé
+ * dans le nom, les ingrédients, la description, les appareils ou les ustensiles
+ * ET qui contiennent les tags sélectionnés.
+ * La fonction prend en argument le mot-clé, les tags sélectionnés, le tableau
+ * des recettes, une fonction de callback pour mettre à jour la liste
+ * des recettes affichées et une fonction de callback pour mettre à jour
+ * les listes déroulantes des filtres.
+ * @param {string} keyword - Mot-clé à recherche
+ * @param {Object[]} selectedTags - Tableau des tags sélectionnés
+ * @param {Object[]} recipes - Tableau des recettes
+ * @param {function} displayCallback - Fonction de callback pour mettre à jour
+ * la liste des recettes affichées
+ * @param {function} updateDropdownCallback - Fonction de callback pour mettre
+ * à jour les listes déroulantes des filtres
+ * @returns {Object[]} Tableau des recettes qui contiennent le mot-clé et les tags
+ */
 export function combinedSearch(
   keyword,
   selectedTags,
@@ -9,9 +27,7 @@ export function combinedSearch(
 ) {
   // Recherche par mot-clé dans les noms, descriptions, ingrédients, appareils, ustensiles
   const keywordFilteredRecipes =
-    keyword.length >= 3
-      ? searchRecipes(keyword, recipes)
-      : recipes;
+    keyword.length >= 3 ? searchRecipes(keyword, recipes) : recipes;
 
   // Filtrage par tags
   const tagsByCategory = selectedTags.reduce(

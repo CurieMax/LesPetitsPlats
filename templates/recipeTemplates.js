@@ -54,6 +54,7 @@ export function recipeTemplate(data) {
 
     const recipeDescription = document.createElement("p");
     recipeDescription.textContent = description;
+    recipeDescription.className = "recipe-description";
 
     const recipeIngredients = document.createElement("ul");
     recipeIngredients.className = "recipe-ingredients";

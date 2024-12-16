@@ -17,16 +17,17 @@ export function addTag(item, category, onCloseCallback) {
   );
   if (existingTag) return; // Éviter les doublons
 
-  if (category === 'ingredient') {
-    category = 'ingredients';
+  // uniformiser les noms des tags
+  if (category === "ingredient") {
+    category = "ingredients";
   }
 
-  if (category === 'appliance') {
-    category = 'appliances';
+  if (category === "appliance") {
+    category = "appliances";
   }
 
-  if (category === 'ustensil') {
-    category = 'ustensils';    
+  if (category === "ustensil") {
+    category = "ustensils";
   }
 
   // Ajout du tag
