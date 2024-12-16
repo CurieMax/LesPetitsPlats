@@ -1,3 +1,16 @@
+/**
+ * Effectue une recherche combinée dans les recettes avec un mot-clé et des tags.
+ * La recherche par mot-clé est faite dans les noms, descriptions, ingrédients, appareils, ustensiles
+ * et elle est combinée avec un filtrage par les tags sélectionnés.
+ * La fonction prend en paramètres le mot-clé, les tags sélectionnés, les recettes à filtrer, une fonction
+ * de mise à jour pour afficher les résultats et une fonction de mise à jour pour les listes déroulantes.
+ * @param {string} keyword - Mot-clé de recherche
+ * @param {Object[]} selectedTags - Tableau d'objets tags sélectionnés
+ * @param {Object[]} recipes - Tableau d'objets recettes à filtrer
+ * @param {function} displayCallback - Fonction de mise à jour pour afficher les résultats
+ * @param {function} updateDropdownCallback - Fonction de mise à jour pour les listes déroulantes
+ * @returns {Object[]} Tableau des recettes filtrées par la recherche combinée
+ */
 export function combinedSearch(
   keyword,
   selectedTags,
