@@ -10,6 +10,13 @@ import { combinedSearch } from "./search.js";
  */
 export function addTag(item, category, onCloseCallback) {
   const tagContainer = document.getElementById("tags");
+  const dropdown = document.getElementById(`${category}Dropdown`);
+  const categoryData = dropdown.dataset.category;
+
+  const selectedTag = document.createElement('div');
+  selectedTag.classList.add('tag');
+  dropdown.appendChild(selectedTag);
+  console.log(selectedTag); // Vérifiez si l'élément est créé correctement
 
   // Vérifiez si le tag existe déjà
   const existingTag = Array.from(tagContainer.children).find(
@@ -17,24 +24,11 @@ export function addTag(item, category, onCloseCallback) {
   );
   if (existingTag) return; // Éviter les doublons
 
-  // uniformiser les noms des tags
-  if (category === "ingredient") {
-    category = "ingredients";
-  }
-
-  if (category === "appliance") {
-    category = "appliances";
-  }
-
-  if (category === "ustensil") {
-    category = "ustensils";
-  }
-
   // Ajout du tag
   const tag = document.createElement("div");
   tag.classList.add("tag");
   tag.dataset.item = item;
-  tag.dataset.category = category;
+  tag.dataset.category = categoryData;
   tag.textContent = item;
 
   const closeBtn = document.createElement("i");
