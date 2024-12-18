@@ -10,13 +10,6 @@ import { combinedSearch } from "./search.js";
  */
 export function addTag(item, category, onCloseCallback) {
   const tagContainer = document.getElementById("tags");
-  const dropdown = document.getElementById(`${category}Dropdown`);
-  const categoryData = dropdown.dataset.category;
-
-  const selectedTag = document.createElement('div');
-  selectedTag.classList.add('tag');
-  dropdown.appendChild(selectedTag);
-  console.log(selectedTag); // Vérifiez si l'élément est créé correctement
 
   // Vérifiez si le tag existe déjà
   const existingTag = Array.from(tagContainer.children).find(
@@ -24,13 +17,25 @@ export function addTag(item, category, onCloseCallback) {
   );
   if (existingTag) return; // Éviter les doublons
 
+  // Table de correspondance pour uniformiser les noms des tags
+  const categoryMap = {
+    "ingredient": "ingredients",
+    "appliance": "appliances",
+    "ustensil": "ustensils",
+  };
+
+  // uniformiser les noms des tags
+  if (categoryMap[category]) {
+    category = categoryMap[category];
+  }
+
   // Ajout du tag
   const tag = document.createElement("div");
   tag.classList.add("tag");
   tag.dataset.item = item;
-  tag.dataset.category = categoryData;
+  tag.dataset.category = category;
   tag.textContent = item;
-
+  
   const closeBtn = document.createElement("i");
   closeBtn.classList.add("fa-solid", "fa-circle-xmark", "close-btn");
   closeBtn.addEventListener("click", () => {
