@@ -176,6 +176,8 @@ main {
   max-height: 200px;
   overflow-y: auto;
   border-radius: 0 0 5px 5px;
+  margin-top: 0;
+  padding-top: 10px;
 }
 
 .dropdown-list li {
@@ -185,6 +187,16 @@ main {
 
 .dropdown-list li:hover,
 .dropdown-list li.selected {
+  background-color: #ffd966;
+}
+
+.dropdown-list li.selected {
+  background-color: #ffd966;
+  color: #000;
+  font-weight: 500;
+}
+
+.dropdown-list li.selected:hover {
   background-color: #ffd966;
 }
 
@@ -215,6 +227,33 @@ main {
 
 .choosed-tags {
   background-color: #ffd966;
+}
+
+/* Tags dans les listes déroulantes */
+.dropdown-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dropdown-tags .tag {
+  background-color: #ffd966;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: inherit;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dropdown-tags .tag .close-btn {
+  color: #333;
+  cursor: pointer;
+  font-size: 16px;
 }
 
 /* Container for recipe cards */
@@ -347,6 +386,11 @@ main {
   font-weight: 400;
   color: #1b1b1b;
   padding: 0 16px;
+}
+
+/* Utilitaires */
+.hidden {
+  display: none !important;
 }
 
 /* Media queries */

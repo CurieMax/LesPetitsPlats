@@ -1,5 +1,6 @@
 import { displayRecipes } from "./index.js";
-import { addTag } from "./tag.js";
+import { addTag, addDropdownTag, removeDropdownTag } from "./tag.js";
+import { combinedSearch } from "./search.js";
 
 // Récupération des données des recettes depuis sessionStorage
 const recipesData = sessionStorage.getItem("recipesData");
@@ -9,6 +10,7 @@ const recipes = recipesData ? JSON.parse(recipesData) : [];
 const uniqueIngredients = getUniqueItems(recipes, "ingredients");
 const uniqueAppliances = getUniqueItems(recipes, "appliance");
 const uniqueUstensils = getUniqueItems(recipes, "ustensils");
+
 /**
  * Retourne un tableau d'éléments uniques extraits de la clé `key` des recettes.
  * @param {Object[]} recipes - Tableau de recettes
@@ -38,6 +40,30 @@ export function getUniqueItems(recipes, key) {
 }
 
 /**
+ * Crée un conteneur de tags pour une liste déroulante
+ * @param {string} dropdownId - ID de la liste déroulante
+ * @returns {HTMLElement} Le conteneur de tags créé
+ */
+function createDropdownTagsContainer(dropdownId) {
+  const dropdown = document.getElementById(dropdownId);
+  const searchDiv = dropdown.querySelector('.filter-search');
+  
+  // Vérifier si le conteneur existe déjà
+  let tagsContainer = dropdown.querySelector('.dropdown-tags');
+  if (!tagsContainer) {
+    // Créer le conteneur de tags
+    tagsContainer = document.createElement('div');
+    tagsContainer.classList.add('dropdown-tags');
+    tagsContainer.id = dropdownId.replace('Dropdown', 'Tags');
+    
+    // Insérer après la barre de recherche
+    searchDiv.insertAdjacentElement('afterend', tagsContainer);
+  }
+  
+  return tagsContainer;
+}
+
+/**
  * Affiche les éléments d'une liste dans un élément HTML (par exemple, un <ul>)
  * et ajoute un listener pour gérer les clics sur chaque élément.
  * Si la liste est vide, affiche un message "Aucun résultat trouvé".
@@ -48,6 +74,10 @@ export function getUniqueItems(recipes, key) {
 export function displayItems(items, listId, onClickCallback) {
   const list = document.getElementById(listId);
   list.innerHTML = ""; // Réinitialiser la liste
+  
+  // Créer le conteneur de tags s'il n'existe pas
+  const dropdownId = listId.replace('List', 'Dropdown');
+  createDropdownTagsContainer(dropdownId);
 
   if (items.length === 0) {
     const li = document.createElement("li");
@@ -56,16 +86,120 @@ export function displayItems(items, listId, onClickCallback) {
     return;
   }
 
+  // Récupérer les tags existants pour cette catégorie
+  const category = listId.replace("List", "");
+  const existingTags = Array.from(document.getElementById("tags").children)
+    .filter(tag => tag.dataset.category === (categoryMap[category] || category))
+    .map(tag => tag.dataset.item);
+
   items.forEach((item) => {
+    // Ne pas afficher l'élément s'il est déjà tagué
+    if (existingTags.includes(item)) {
+      return;
+    }
+
     const li = document.createElement("li");
     li.textContent = item;
+
     li.addEventListener("click", () => {
-      li.classList.toggle("choosed-tags");
+      // Supprimer l'élément de la liste
+      list.removeChild(li);
+      
+      // Ajouter le tag dans le conteneur de tags
+      const tagContainerId = listId.replace("List", "Tags");
+      const tagContainer = document.getElementById(tagContainerId);
+      const category = listId.replace("List", "");
+      
+      if (tagContainer) {
+        // Table de correspondance pour uniformiser les noms des tags
+        const categoryMap = {
+          "ingredient": "ingredients",
+          "appliance": "appliances",
+          "ustensil": "ustensils",
+        };
+
+        // Uniformiser la catégorie
+        const normalizedCategory = categoryMap[category] || category;
+        
+        // Créer le nouveau tag
+        const tag = document.createElement("div");
+        tag.classList.add("tag");
+        tag.dataset.item = item;
+        tag.dataset.category = normalizedCategory;
+        tag.textContent = item;
+        
+        // Ajouter le bouton de fermeture
+        const closeBtn = document.createElement("i");
+        closeBtn.classList.add("fa-solid", "fa-circle-xmark", "close-btn");
+        closeBtn.addEventListener("click", () => {
+          // Supprimer ce tag spécifique
+          tag.remove();
+          
+          // Supprimer le tag global correspondant
+          const globalTags = document.getElementById("tags");
+          const globalTag = Array.from(globalTags.children).find(
+            tag => tag.dataset.item === item && tag.dataset.category === normalizedCategory
+          );
+          if (globalTag) {
+            globalTags.removeChild(globalTag);
+          }
+          
+          // Mettre à jour l'affichage
+          const remainingTags = [...document.getElementById("tags").querySelectorAll(".tag")].map(tag => ({
+            item: tag.dataset.item,
+            category: tag.dataset.category
+          }));
+
+          const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
+          const filteredRecipes = combinedSearch(
+            document.querySelector(".search-bar input").value,
+            remainingTags,
+            recipes
+          );
+
+          displayRecipes(filteredRecipes);
+          updateDropdownLists(filteredRecipes);
+
+          // Réafficher l'élément dans la liste
+          const newLi = document.createElement("li");
+          newLi.textContent = item;
+          newLi.addEventListener("click", li.onclick);
+          list.appendChild(newLi);
+        });
+        
+        tag.appendChild(closeBtn);
+        tagContainer.appendChild(tag);
+
+        // Mise à jour des résultats
+        const selectedTags = [...document.getElementById("tags").querySelectorAll(".tag")].map(tag => ({
+          item: tag.dataset.item,
+          category: tag.dataset.category
+        }));
+
+        const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
+        const filteredRecipes = combinedSearch(
+          document.querySelector(".search-bar input").value,
+          selectedTags,
+          recipes
+        );
+
+        displayRecipes(filteredRecipes);
+        updateDropdownLists(filteredRecipes);
+      }
+
+      // Appeler le callback pour gérer l'ajout du tag global
       onClickCallback(item);
     });
     list.appendChild(li);
   });
 }
+
+// Table de correspondance pour uniformiser les noms des tags
+const categoryMap = {
+  "ingredient": "ingredients",
+  "appliance": "appliances",
+  "ustensil": "ustensils",
+};
 
 /**
  * Ajoute la fonctionnalité de recherche à un champ de formulaire et à une liste HTML
@@ -76,8 +210,6 @@ export function displayItems(items, listId, onClickCallback) {
 function addSearchFunctionality(inputId, listId, items) {
   const inputElement = document.getElementById(inputId);
   
-  
-
   inputElement.addEventListener("input", (event) => {
     const searchValue = event.target.value.toLowerCase();
     const filteredItems = items.filter((item) =>
@@ -85,7 +217,10 @@ function addSearchFunctionality(inputId, listId, items) {
     );
 
     displayItems(filteredItems, listId, (selectedItem) => {
+      // Ajouter le tag dans la liste déroulante
+      addDropdownTag(selectedItem, listId.replace("List", ""));
 
+      // Ajouter le tag global
       addTag(selectedItem, listId.replace("List", ""), (removedItem) => {
         console.log(`Tag supprimé : ${removedItem}`);
       });
@@ -94,6 +229,10 @@ function addSearchFunctionality(inputId, listId, items) {
 
   // Afficher les éléments initiaux
   displayItems(items, listId, (selectedItem) => {
+    // Ajouter le tag dans la liste déroulante
+    addDropdownTag(selectedItem, listId.replace("List", ""));
+
+    // Ajouter le tag global
     addTag(selectedItem, listId.replace("List", ""), (removedItem) => {
       console.log(`Tag supprimé : ${removedItem}`);
     });
@@ -165,41 +304,6 @@ export function updateDropdownLists(filteredRecipes) {
 }
 
 /**
- * Toggles the visibility of a dropdown list when the trigger element is clicked.
- * Closes other open dropdown lists to ensure only one is open at a time.
- * Also closes the dropdown if a click occurs outside the trigger or dropdown elements.
- *
- * @param {HTMLElement} triggerElement - The element that triggers the dropdown toggle when clicked.
- * @param {HTMLElement} dropdownElement - The dropdown element whose visibility is toggled.
- */
-export function toggleDropdown(triggerElement, dropdownElement) {
-  triggerElement.addEventListener("click", (event) => {
-    event.stopPropagation();
-
-    // Fermer les autres listes déroulantes
-    document.querySelectorAll(".dropdown-list").forEach((dropdown) => {
-      if (dropdown !== dropdownElement) {
-        dropdown.style.display = "none";
-      }
-    });
-
-    // Basculer l'affichage de la liste
-    dropdownElement.style.display =
-      dropdownElement.style.display === "block" ? "none" : "block";
-  });
-
-  // Fermer la liste si on clique en dehors
-  document.addEventListener("click", (event) => {
-    if (
-      !triggerElement.contains(event.target) &&
-      !dropdownElement.contains(event.target)
-    ) {
-      dropdownElement.style.display = "none";
-    }
-  });
-}
-
-/**
  * Filters recipes by the selected tags.
  * Returns an object with the filtered recipes and the remaining options for each category.
  *
@@ -241,4 +345,39 @@ export function filterRecipesByItems(selectedTags) {
   displayRecipes(filteredRecipes);
 
   return { filteredRecipes, remainingOptions };
+}
+
+/**
+ * Toggles the visibility of a dropdown list when the trigger element is clicked.
+ * Closes other open dropdown lists to ensure only one is open at a time.
+ * Also closes the dropdown if a click occurs outside the trigger or dropdown elements.
+ *
+ * @param {HTMLElement} triggerElement - The element that triggers the dropdown toggle when clicked.
+ * @param {HTMLElement} dropdownElement - The dropdown element whose visibility is toggled.
+ */
+export function toggleDropdown(triggerElement, dropdownElement) {
+  triggerElement.addEventListener("click", (event) => {
+    event.stopPropagation();
+
+    // Fermer les autres listes déroulantes
+    document.querySelectorAll(".dropdown-list").forEach((dropdown) => {
+      if (dropdown !== dropdownElement) {
+        dropdown.style.display = "none";
+      }
+    });
+
+    // Basculer l'affichage de la liste
+    dropdownElement.style.display =
+      dropdownElement.style.display === "block" ? "none" : "block";
+  });
+
+  // Fermer la liste si on clique en dehors
+  document.addEventListener("click", (event) => {
+    if (
+      !triggerElement.contains(event.target) &&
+      !dropdownElement.contains(event.target)
+    ) {
+      dropdownElement.style.display = "none";
+    }
+  });
 }

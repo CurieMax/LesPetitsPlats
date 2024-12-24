@@ -94,19 +94,26 @@ function initFilters(recipes) {
   const setupFilter = (items, listId, category) => {
     displayItems(items, listId, (item) => {
       addTag(item, category, (removedItem) => {
-        removeTag(removedItem, category, (remainingTags) => {
-          filterRecipesByItems(remainingTags);
-        });
+        if (removedItem) {
+          removeTag(removedItem, category, (remainingTags) => {
+            if (remainingTags) {
+              const { filteredRecipes } = filterRecipesByItems(remainingTags);
+              displayRecipes(filteredRecipes);
+              updateDropdownLists(filteredRecipes);
+            }
+          });
+        }
       });
 
-      const selectedTags = [
-        ...document.getElementById("tags").querySelectorAll(".tag"),
-      ].map((tag) => ({
-        item: tag.dataset.item,
-        category: tag.dataset.category,
-      }));
+      const selectedTags = Array.from(document.getElementById("tags").children)
+        .map((tag) => ({
+          item: tag.dataset.item,
+          category: tag.dataset.category,
+        }));
 
-      filterRecipesByItems(selectedTags);
+      const { filteredRecipes } = filterRecipesByItems(selectedTags);
+      displayRecipes(filteredRecipes);
+      updateDropdownLists(filteredRecipes);
     });
   };
 
