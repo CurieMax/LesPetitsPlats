@@ -1,9 +1,68 @@
 import { displayRecipes } from "./index.js";
-import { filterRecipesByItems, updateDropdownLists } from "./filter.js";
+import { updateDropdownLists } from "./filter.js";
 import { combinedSearch } from "./search.js";
 
+// Table de correspondance pour uniformiser les noms des tags
+const CATEGORY_MAP = {
+  ingredient: "ingredients",
+  appliance: "appliances",
+  ustensil: "ustensils",
+};
+
 /**
- * Ajoute un tag à la liste des tags
+ * Normalise une catégorie en fonction de CATEGORY_MAP
+ * @param {string} category - La catégorie à normaliser
+ * @returns {string} - La catégorie normalisée
+ */
+function normalizeCategory(category) {
+  return CATEGORY_MAP[category] || category;
+}
+
+/**
+ * Met à jour les résultats affichés en fonction des tags sélectionnés
+ */
+function updateResults() {
+  const selectedTags = Array.from(document.getElementById("tags").children).map((tag) => ({
+    item: tag.dataset.item,
+    category: tag.dataset.category,
+  }));
+
+  const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
+  const searchQuery = document.querySelector(".search-bar input").value;
+  const filteredRecipes = combinedSearch(searchQuery, selectedTags, recipes);
+
+  displayRecipes(filteredRecipes);
+  updateDropdownLists(filteredRecipes);
+}
+
+/**
+ * Crée un élément de tag HTML
+ * @param {string} item - L'élément du tag
+ * @param {string} category - La catégorie du tag
+ * @param {Function} onCloseCallback - Fonction à exécuter lors de la suppression d'un tag
+ * @returns {HTMLElement} - L'élément HTML du tag
+ */
+function createTagElement(item, category, onCloseCallback) {
+  const tag = document.createElement("div");
+  tag.classList.add("tag");
+  tag.dataset.item = item;
+  tag.dataset.category = category;
+  tag.textContent = item;
+
+  const closeBtn = document.createElement("i");
+  closeBtn.classList.add("fa-solid", "fa-circle-xmark", "close-btn");
+  closeBtn.addEventListener("click", () => {
+    tag.remove();
+    onCloseCallback(item, category);
+    updateResults();
+  });
+
+  tag.appendChild(closeBtn);
+  return tag;
+}
+
+/**
+ * Ajoute un tag à la liste des tags globaux
  * @param {string} item - Élément à ajouter
  * @param {string} category - Catégorie du tag
  * @param {Function} onCloseCallback - Fonction à exécuter lors de la suppression d'un tag
@@ -11,80 +70,20 @@ import { combinedSearch } from "./search.js";
 export function addTag(item, category, onCloseCallback) {
   const tagContainer = document.getElementById("tags");
 
-  // Vérifiez si le tag existe déjà
-  const existingTag = Array.from(tagContainer.children).find(
-    (tag) => tag.dataset.item === item && tag.dataset.category === category
-  );
-  if (existingTag) return; // Éviter les doublons
-
-  // Table de correspondance pour uniformiser les noms des tags
-  const categoryMap = {
-    "ingredient": "ingredients",
-    "appliance": "appliances",
-    "ustensil": "ustensils",
-  };
-
-  // uniformiser les noms des tags
-  if (categoryMap[category]) {
-    category = categoryMap[category];
+  // Vérifier si le tag existe déjà
+  if (Array.from(tagContainer.children).some((tag) => tag.dataset.item === item && tag.dataset.category === category)) {
+    return; // Éviter les doublons
   }
 
-  // Ajout du tag
-  const tag = document.createElement("div");
-  tag.classList.add("tag");
-  tag.dataset.item = item;
-  tag.dataset.category = category;
-  tag.textContent = item;
-  
-  const closeBtn = document.createElement("i");
-  closeBtn.classList.add("fa-solid", "fa-circle-xmark", "close-btn");
-  closeBtn.addEventListener("click", () => {
-    tagContainer.removeChild(tag); // Supprimer le tag
-    onCloseCallback(item, category);
+  const normalizedCategory = normalizeCategory(category);
+  const tag = createTagElement(item, normalizedCategory, onCloseCallback);
 
-    // Mettre à jour la recherche et les listes
-    const remainingTags = [
-      ...document.getElementById("tags").querySelectorAll(".tag"),
-    ].map((tag) => ({
-      item: tag.dataset.item,
-      category: tag.dataset.category,
-    }));
-
-    const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
-    const filteredRecipes = combinedSearch(
-      document.querySelector(".search-bar input").value,
-      remainingTags,
-      recipes
-    );
-
-    displayRecipes(filteredRecipes);
-    updateDropdownLists(filteredRecipes);
-  });
-
-  tag.appendChild(closeBtn);
   tagContainer.appendChild(tag);
-
-  // Mise à jour des résultats
-  const selectedTags = [
-    ...document.getElementById("tags").querySelectorAll(".tag"),
-  ].map((tag) => ({
-    item: tag.dataset.item,
-    category: tag.dataset.category,
-  }));
-
-  const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
-  const filteredRecipes = combinedSearch(
-    document.querySelector(".search-bar input").value,
-    selectedTags,
-    recipes
-  );
-
-  displayRecipes(filteredRecipes);
-  updateDropdownLists(filteredRecipes);
+  updateResults();
 }
 
 /**
- * Supprime un tag spécifique et met à jour les recettes
+ * Supprime un tag spécifique
  * @param {string} item - Élément à supprimer
  * @param {string} category - Catégorie du tag
  * @param {Function} onUpdateCallback - Fonction exécutée après mise à jour
@@ -98,29 +97,16 @@ export function removeTag(item, category, onUpdateCallback) {
 
   if (tag) {
     tagContainer.removeChild(tag);
-    // Supprimer également le tag de la liste déroulante
     removeDropdownTag(item, category);
   }
 
-  // Récupérer les tags restants
-  const remainingTags = Array.from(tagContainer.children).map((tag) => ({
-    item: tag.dataset.item,
-    category: tag.dataset.category,
-  }));
+  updateResults();
 
-  // Mettre à jour les recettes
-  const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
-  const filteredRecipes = combinedSearch(
-    document.querySelector(".search-bar input").value,
-    remainingTags,
-    recipes
-  );
-
-  displayRecipes(filteredRecipes);
-  updateDropdownLists(filteredRecipes);
-
-  // Appeler le callback avec les tags restants
-  if (onUpdateCallback && typeof onUpdateCallback === 'function') {
+  if (typeof onUpdateCallback === "function") {
+    const remainingTags = Array.from(tagContainer.children).map((tag) => ({
+      item: tag.dataset.item,
+      category: tag.dataset.category,
+    }));
     onUpdateCallback(remainingTags);
   }
 }
@@ -131,67 +117,19 @@ export function removeTag(item, category, onUpdateCallback) {
  * @param {string} category - Catégorie du tag
  */
 export function addDropdownTag(item, category) {
-  // Table de correspondance pour uniformiser les noms des tags
-  const categoryMap = {
-    "ingredient": "ingredients",
-    "appliance": "appliances",
-    "ustensil": "ustensils",
-  };
-
-  // Uniformiser la catégorie
-  const normalizedCategory = categoryMap[category] || category;
-
-  // Trouver le conteneur de tags
+  const normalizedCategory = normalizeCategory(category);
   const tagContainer = document.getElementById(`${category}Tags`);
   if (!tagContainer) return;
 
   // Vérifier si le tag existe déjà
-  const existingTag = Array.from(tagContainer.children).find(
-    tag => tag.dataset.item === item
-  );
-  if (existingTag) return;
+  if (Array.from(tagContainer.children).some((tag) => tag.dataset.item === item)) {
+    return;
+  }
 
-  // Créer le tag
-  const tag = document.createElement("div");
-  tag.classList.add("tag");
-  tag.dataset.item = item;
-  tag.dataset.category = normalizedCategory;
-  tag.textContent = item;
-
-  // Ajouter le bouton de fermeture
-  const closeBtn = document.createElement("i");
-  closeBtn.classList.add("fa-solid", "fa-circle-xmark", "close-btn");
-  closeBtn.addEventListener("click", () => {
-    // Supprimer ce tag spécifique
-    tag.remove();
-
-    // Supprimer le tag global correspondant
-    const globalTags = document.getElementById("tags");
-    const globalTag = Array.from(globalTags.children).find(
-      tag => tag.dataset.item === item && tag.dataset.category === normalizedCategory
-    );
-    if (globalTag) {
-      globalTags.removeChild(globalTag);
-    }
-
-    // Mettre à jour l'affichage
-    const remainingTags = [...document.getElementById("tags").querySelectorAll(".tag")].map(tag => ({
-      item: tag.dataset.item,
-      category: tag.dataset.category
-    }));
-
-    const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
-    const filteredRecipes = combinedSearch(
-      document.querySelector(".search-bar input").value,
-      remainingTags,
-      recipes
-    );
-
-    displayRecipes(filteredRecipes);
-    updateDropdownLists(filteredRecipes);
+  const tag = createTagElement(item, normalizedCategory, () => {
+    removeTag(item, normalizedCategory);
   });
 
-  tag.appendChild(closeBtn);
   tagContainer.appendChild(tag);
 }
 
@@ -201,29 +139,21 @@ export function addDropdownTag(item, category) {
  * @param {string} category - Catégorie du tag
  */
 export function removeDropdownTag(item, category) {
-  // Convertir la catégorie au format de la liste déroulante
-  const dropdownCategory = category.replace(/s$/, ''); // Enlève le 's' final si présent
-  const tagContainerId = `${dropdownCategory}Tags`;
-  const tagContainer = document.getElementById(tagContainerId);
-  
-  if (tagContainer) {
-    const tag = Array.from(tagContainer.children).find(
-      t => t.textContent.replace(/✕$/, '').trim() === item
-    );
-    if (tag) {
-      tag.remove();
-      
-      // Réajouter l'élément à la liste des choix
-      const listId = `${dropdownCategory}List`;
-      const list = document.getElementById(listId);
-      if (list) {
-        const newLi = document.createElement("li");
-        newLi.textContent = item;
-        newLi.addEventListener("click", () => {
-          addTag(item, dropdownCategory);
-        });
-        list.appendChild(newLi);
-      }
+  const dropdownCategory = category.replace(/s$/, ""); // Enlève le 's' final si présent
+  const tagContainer = document.getElementById(`${dropdownCategory}Tags`);
+  if (!tagContainer) return;
+
+  const tag = Array.from(tagContainer.children).find((t) => t.textContent.trim() === item);
+  if (tag) {
+    tag.remove();
+
+    const listId = `${dropdownCategory}List`;
+    const list = document.getElementById(listId);
+    if (list) {
+      const newLi = document.createElement("li");
+      newLi.textContent = item;
+      newLi.addEventListener("click", () => addTag(item, dropdownCategory));
+      list.appendChild(newLi);
     }
   }
 }
