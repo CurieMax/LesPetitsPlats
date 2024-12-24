@@ -1,5 +1,5 @@
 import { displayRecipes } from "./index.js";
-import { addTag, addDropdownTag, removeDropdownTag } from "./tag.js";
+import { addTag, addDropdownTag } from "./tag.js";
 import { combinedSearch } from "./search.js";
 
 // Récupération des données des recettes depuis sessionStorage
@@ -46,20 +46,20 @@ export function getUniqueItems(recipes, key) {
  */
 function createDropdownTagsContainer(dropdownId) {
   const dropdown = document.getElementById(dropdownId);
-  const searchDiv = dropdown.querySelector('.filter-search');
-  
+  const searchDiv = dropdown.querySelector(".filter-search");
+
   // Vérifier si le conteneur existe déjà
-  let tagsContainer = dropdown.querySelector('.dropdown-tags');
+  let tagsContainer = dropdown.querySelector(".dropdown-tags");
   if (!tagsContainer) {
     // Créer le conteneur de tags
-    tagsContainer = document.createElement('div');
-    tagsContainer.classList.add('dropdown-tags');
-    tagsContainer.id = dropdownId.replace('Dropdown', 'Tags');
-    
+    tagsContainer = document.createElement("div");
+    tagsContainer.classList.add("dropdown-tags");
+    tagsContainer.id = dropdownId.replace("Dropdown", "Tags");
+
     // Insérer après la barre de recherche
-    searchDiv.insertAdjacentElement('afterend', tagsContainer);
+    searchDiv.insertAdjacentElement("afterend", tagsContainer);
   }
-  
+
   return tagsContainer;
 }
 
@@ -74,9 +74,9 @@ function createDropdownTagsContainer(dropdownId) {
 export function displayItems(items, listId, onClickCallback) {
   const list = document.getElementById(listId);
   list.innerHTML = ""; // Réinitialiser la liste
-  
+
   // Créer le conteneur de tags s'il n'existe pas
-  const dropdownId = listId.replace('List', 'Dropdown');
+  const dropdownId = listId.replace("List", "Dropdown");
   createDropdownTagsContainer(dropdownId);
 
   if (items.length === 0) {
@@ -89,8 +89,10 @@ export function displayItems(items, listId, onClickCallback) {
   // Récupérer les tags existants pour cette catégorie
   const category = listId.replace("List", "");
   const existingTags = Array.from(document.getElementById("tags").children)
-    .filter(tag => tag.dataset.category === (categoryMap[category] || category))
-    .map(tag => tag.dataset.item);
+    .filter(
+      (tag) => tag.dataset.category === (categoryMap[category] || category)
+    )
+    .map((tag) => tag.dataset.item);
 
   items.forEach((item) => {
     // Ne pas afficher l'élément s'il est déjà tagué
@@ -104,53 +106,58 @@ export function displayItems(items, listId, onClickCallback) {
     li.addEventListener("click", () => {
       // Supprimer l'élément de la liste
       list.removeChild(li);
-      
+
       // Ajouter le tag dans le conteneur de tags
       const tagContainerId = listId.replace("List", "Tags");
       const tagContainer = document.getElementById(tagContainerId);
       const category = listId.replace("List", "");
-      
+
       if (tagContainer) {
         // Table de correspondance pour uniformiser les noms des tags
         const categoryMap = {
-          "ingredient": "ingredients",
-          "appliance": "appliances",
-          "ustensil": "ustensils",
+          ingredient: "ingredients",
+          appliance: "appliances",
+          ustensil: "ustensils",
         };
 
         // Uniformiser la catégorie
         const normalizedCategory = categoryMap[category] || category;
-        
+
         // Créer le nouveau tag
         const tag = document.createElement("div");
         tag.classList.add("tag");
         tag.dataset.item = item;
         tag.dataset.category = normalizedCategory;
         tag.textContent = item;
-        
+
         // Ajouter le bouton de fermeture
         const closeBtn = document.createElement("i");
         closeBtn.classList.add("fa-solid", "fa-circle-xmark", "close-btn");
         closeBtn.addEventListener("click", () => {
           // Supprimer ce tag spécifique
           tag.remove();
-          
+
           // Supprimer le tag global correspondant
           const globalTags = document.getElementById("tags");
           const globalTag = Array.from(globalTags.children).find(
-            tag => tag.dataset.item === item && tag.dataset.category === normalizedCategory
+            (tag) =>
+              tag.dataset.item === item &&
+              tag.dataset.category === normalizedCategory
           );
           if (globalTag) {
             globalTags.removeChild(globalTag);
           }
-          
+
           // Mettre à jour l'affichage
-          const remainingTags = [...document.getElementById("tags").querySelectorAll(".tag")].map(tag => ({
+          const remainingTags = [
+            ...document.getElementById("tags").querySelectorAll(".tag"),
+          ].map((tag) => ({
             item: tag.dataset.item,
-            category: tag.dataset.category
+            category: tag.dataset.category,
           }));
 
-          const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
+          const recipes =
+            JSON.parse(sessionStorage.getItem("recipesData")) || [];
           const filteredRecipes = combinedSearch(
             document.querySelector(".search-bar input").value,
             remainingTags,
@@ -166,14 +173,16 @@ export function displayItems(items, listId, onClickCallback) {
           newLi.addEventListener("click", li.onclick);
           list.appendChild(newLi);
         });
-        
+
         tag.appendChild(closeBtn);
         tagContainer.appendChild(tag);
 
         // Mise à jour des résultats
-        const selectedTags = [...document.getElementById("tags").querySelectorAll(".tag")].map(tag => ({
+        const selectedTags = [
+          ...document.getElementById("tags").querySelectorAll(".tag"),
+        ].map((tag) => ({
           item: tag.dataset.item,
-          category: tag.dataset.category
+          category: tag.dataset.category,
         }));
 
         const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
@@ -196,9 +205,9 @@ export function displayItems(items, listId, onClickCallback) {
 
 // Table de correspondance pour uniformiser les noms des tags
 const categoryMap = {
-  "ingredient": "ingredients",
-  "appliance": "appliances",
-  "ustensil": "ustensils",
+  ingredient: "ingredients",
+  appliance: "appliances",
+  ustensil: "ustensils",
 };
 
 /**
@@ -209,7 +218,7 @@ const categoryMap = {
  */
 function addSearchFunctionality(inputId, listId, items) {
   const inputElement = document.getElementById(inputId);
-  
+
   inputElement.addEventListener("input", (event) => {
     const searchValue = event.target.value.toLowerCase();
     const filteredItems = items.filter((item) =>
