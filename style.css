@@ -271,20 +271,18 @@ main {
 
 /* Style for individual recipe card */
 .recipe-card {
-  display: flex;
-  flex-direction: column;
   background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 380px;
-  height: 731px;
+  border-radius: 21px;
   overflow: hidden;
+  height: 731px;
+  transition: all 0.3s ease-in-out;
   position: relative;
-  transition: transform 0.3s;
 }
 
 .recipe-card:hover {
-  transform: translateY(-10px);
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 100;
 }
 
 /* Recipe image */
@@ -340,7 +338,15 @@ main {
 .recipe-description {
   height: 76px;
   overflow: hidden;
+  transition: all 0.3s ease-in-out;
 }
+
+.recipe-card:hover .recipe-description {
+  height: auto;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
 .recipe-card p {
   color: #666;
 }
