@@ -216,8 +216,18 @@ const categoryMap = {
  * @param {string} listId - ID de la liste HTML <ul> ciblée
  * @param {string[]} items - Tableau d'éléments à filtrer
  */
-function addSearchFunctionality(inputId, listId, items) {
+export function addSearchFunctionality(inputId, listId, items) {
   const inputElement = document.getElementById(inputId);
+
+  displayItems(items, listId, (selectedItem) => {
+    // Ajouter le tag dans la liste déroulante
+    addDropdownTag(selectedItem, listId.replace("List", ""));
+
+    // Ajouter le tag global
+    addTag(selectedItem, listId.replace("List", ""), (removedItem) => {
+      console.log(`Tag supprimé : ${removedItem}`);
+    });
+  });
 
   inputElement.addEventListener("input", (event) => {
     const searchValue = event.target.value.toLowerCase();
@@ -235,17 +245,7 @@ function addSearchFunctionality(inputId, listId, items) {
       });
     });
   });
-
-  // Afficher les éléments initiaux
-  displayItems(items, listId, (selectedItem) => {
-    // Ajouter le tag dans la liste déroulante
-    addDropdownTag(selectedItem, listId.replace("List", ""));
-
-    // Ajouter le tag global
-    addTag(selectedItem, listId.replace("List", ""), (removedItem) => {
-      console.log(`Tag supprimé : ${removedItem}`);
-    });
-  });
+ 
 }
 
 // Initialiser les fonctionnalités de recherche

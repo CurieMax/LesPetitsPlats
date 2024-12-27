@@ -105,11 +105,12 @@ function initFilters(recipes) {
         }
       });
 
-      const selectedTags = Array.from(document.getElementById("tags").children)
-        .map((tag) => ({
-          item: tag.dataset.item,
-          category: tag.dataset.category,
-        }));
+      const selectedTags = Array.from(
+        document.getElementById("tags").children
+      ).map((tag) => ({
+        item: tag.dataset.item,
+        category: tag.dataset.category,
+      }));
 
       const { filteredRecipes } = filterRecipesByItems(selectedTags);
       displayRecipes(filteredRecipes);
@@ -127,6 +128,7 @@ function initFilters(recipes) {
  */
 async function init() {
   const recipes = await getRecipes();
+  console.log(recipes);
 
   // Stocker les recettes pour un accès global
   sessionStorage.setItem("recipesData", JSON.stringify(recipes));
@@ -135,7 +137,7 @@ async function init() {
   displayRecipes(recipes);
 
   // Initialiser la barre de recherche
-  initSearch(recipes);
+  setTimeout(() => initSearch(recipes), 500);
 
   // Initialiser les filtres (ingrédients, appareils et ustensiles)
   initFilters(recipes);

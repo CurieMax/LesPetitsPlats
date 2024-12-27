@@ -102,6 +102,7 @@ export function removeTag(item, category, onUpdateCallback) {
 
   updateResults();
 
+  // Appeler la fonction de mise à jour si elle existe 
   if (typeof onUpdateCallback === "function") {
     const remainingTags = Array.from(tagContainer.children).map((tag) => ({
       item: tag.dataset.item,

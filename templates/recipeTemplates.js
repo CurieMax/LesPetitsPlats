@@ -59,12 +59,12 @@ export function recipeTemplate(data) {
     const recipeIngredients = document.createElement("ul");
     recipeIngredients.className = "recipe-ingredients";
 
-    const ingredientsTitle = document.createElement("h3");
-    ingredientsTitle.textContent = "Ingrédients";
-    recipeIngredients.appendChild(ingredientsTitle);
+    const ingredientsTitle = document.createElement("li"); // Crée un élément <li> pour le titre
+    const ingredientsTitleH3 = document.createElement("h3");
+    ingredientsTitleH3.textContent = "Ingrédients";
+    ingredientsTitle.appendChild(ingredientsTitleH3); // Ajoute le titre à l'intérieur de l'élément <li>
 
-    const ingredientsContainer = document.createElement("div");
-    ingredientsContainer.className = "ingredients-container";
+    recipeIngredients.className = "recipe-ingredients ingredients-container";
 
     ingredients.forEach((ingredient) => {
       const listItem = document.createElement("li");
@@ -75,15 +75,17 @@ export function recipeTemplate(data) {
 
       if (ingredient.quantity || ingredient.unit) {
         const quantityText = document.createElement("span");
-        quantityText.textContent = ` ${ingredient.quantity || ""} ${ingredient.unit || ""}`;
+        quantityText.textContent = ` ${ingredient.quantity || ""} ${
+          ingredient.unit || ""
+        }`;
         listItem.appendChild(document.createElement("br"));
         listItem.appendChild(quantityText);
       }
 
-      ingredientsContainer.appendChild(listItem);
+      recipeIngredients.appendChild(listItem);
     });
 
-    recipeIngredients.appendChild(ingredientsContainer);
+    recipeInfo.appendChild(recipeIngredients);
 
     recipeInfo.appendChild(recipeTime);
     recipeInfo.appendChild(recipeDescription);
