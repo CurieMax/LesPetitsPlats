@@ -10,88 +10,121 @@ import {
 import { combinedSearch } from "./search.js";
 import { addTag, removeTag } from "./tag.js";
 
+// Cache des éléments DOM fréquemment utilisés
+const DOM = {
+  recipeSection: document.querySelector(".recipe-section"),
+  filterText: document.querySelector(".filter-text"),
+  errorMessage: document.querySelector(".error-message"),
+  searchInput: document.querySelector(".search-bar input"),
+  tagsContainer: document.getElementById("tags"),
+  dropdowns: {
+    ingredient: document.getElementById("ingredientDropdown"),
+    appliance: document.getElementById("applianceDropdown"),
+    ustensil: document.getElementById("ustensilDropdown"),
+  },
+  filters: {
+    ingredient: document.querySelector(".ingredient-filter"),
+    appliance: document.querySelector(".appliance-filter"),
+    ustensil: document.querySelector(".ustensil-filter"),
+  },
+};
+
+// Cache pour les templates de recettes
+const recipeTemplateCache = new Map();
+
 /**
  * Met à jour le texte dans filter-text en fonction du nombre de recettes
  * @param {number} count - Nombre de recettes affichées
  */
 function updateFilterText(count, keyword = "") {
-  const filterTextElement = document.querySelector(".filter-text");
-  const errorMessageElement = document.querySelector(".error-message");
-
   if (count === 0 && keyword.trim().length > 0) {
-    filterTextElement.textContent = "Aucune recette trouvée";
-    errorMessageElement.style.display = "flex";
-    errorMessageElement.textContent = `Aucune recette ne contient « ${keyword} ». Vous pouvez chercher « tarte aux pommes », « poisson », etc.`;
+    DOM.filterText.textContent = "Aucune recette trouvée";
+    DOM.errorMessage.style.display = "flex";
+    DOM.errorMessage.textContent = `Aucune recette ne contient « ${keyword} ». Vous pouvez chercher « tarte aux pommes », « poisson », etc.`;
   } else {
-    filterTextElement.textContent = `${count} recettes disponibles`;
-    errorMessageElement.style.display = "none";
+    DOM.filterText.textContent = `${count} recettes disponibles`;
+    DOM.errorMessage.style.display = "none";
   }
 }
 
 /**
- * Affiche les recettes correspondantes dans la section .recipe-section
+ * Crée une carte de recette avec mise en cache
+ * @param {Object} recipe - Données de la recette
+ * @returns {HTMLElement} Élément DOM de la carte
+ */
+function createRecipeCard(recipe) {
+  const cacheKey = recipe.id;
+  if (recipeTemplateCache.has(cacheKey)) {
+    return recipeTemplateCache.get(cacheKey).cloneNode(true);
+  }
+  const card = recipeTemplate(recipe);
+  recipeTemplateCache.set(cacheKey, card.cloneNode(true));
+  return card;
+}
+
+/**
+ * Affiche les recettes avec optimisation des performances
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
 export async function displayRecipes(recipes) {
-  const recipeSection = document.querySelector(".recipe-section");
-
-  // Vider la section avant d'ajouter les nouvelles recettes
-  recipeSection.innerHTML = "";
-
-  // Afficher les recettes correspondantes
-  recipes.forEach((recipe) => {
-    const recipeCard = recipeTemplate(recipe);
-    recipeSection.appendChild(recipeCard);
+  const fragment = document.createDocumentFragment();
+  recipes.forEach(recipe => {
+    fragment.appendChild(createRecipeCard(recipe));
   });
 
-  // Mettre à jour filter-text avec le nombre de recettes affichées
+  // Une seule manipulation du DOM
+  DOM.recipeSection.innerHTML = "";
+  DOM.recipeSection.appendChild(fragment);
   updateFilterText(recipes.length);
 }
 
 /**
- * Initialise l'écouteur d'événements de la barre de recherche pour les recettes
+ * Initialise la recherche avec debounce
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
 function initSearch(recipes) {
-  const searchInput = document.querySelector(".search-bar input");
+  let searchTimeout;
+  let lastKeyword = "";
 
-  searchInput.addEventListener("input", (event) => {
+  DOM.searchInput.addEventListener("input", (event) => {
     const keyword = event.target.value;
+    if (keyword === lastKeyword) return;
+    lastKeyword = keyword;
 
-    // Récupérer les tags sélectionnés
-    const selectedTags = [
-      ...document.getElementById("tags").querySelectorAll(".tag"),
-    ].map((tag) => ({
-      item: tag.dataset.item,
-      category: tag.dataset.category,
-    }));
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const selectedTags = [...DOM.tagsContainer.querySelectorAll(".tag")]
+        .map(tag => ({
+          item: tag.dataset.item,
+          category: tag.dataset.category,
+        }));
 
-    // Recherche combinée élargie avec callbacks pour mise à jour
-    combinedSearch(
-      keyword,
-      selectedTags,
-      recipes,
-      (filteredRecipes) => {
-        displayRecipes(filteredRecipes);
-        updateFilterText(filteredRecipes.length, keyword);
-      },
-      updateDropdownLists
-    );
+      combinedSearch(
+        keyword,
+        selectedTags,
+        recipes,
+        (filteredRecipes) => {
+          displayRecipes(filteredRecipes);
+          updateFilterText(filteredRecipes.length, keyword);
+        },
+        updateDropdownLists
+      );
+    }, 150); // Debounce de 150ms
   });
 }
 
 /**
- * Initialise les filtres pour les ingrédients, appareils et ustensiles
+ * Initialise les filtres avec optimisation des performances
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
 function initFilters(recipes) {
-  // Récupérer les listes uniques d'ingrédients, d'appareils et d'ustensiles
-  const ingredients = getUniqueItems(recipes, "ingredients");
-  const appliances = getUniqueItems(recipes, "appliance");
-  const ustensils = getUniqueItems(recipes, "ustensils");
+  const filters = [
+    { items: getUniqueItems(recipes, "ingredients"), listId: "ingredientList", category: "ingredients" },
+    { items: getUniqueItems(recipes, "appliance"), listId: "applianceList", category: "appliances" },
+    { items: getUniqueItems(recipes, "ustensils"), listId: "ustensilList", category: "ustensils" }
+  ];
 
-  // Afficher et gérer les interactions pour chaque filtre
-  const setupFilter = (items, listId, category) => {
+  filters.forEach(({ items, listId, category }) => {
     displayItems(items, listId, (item) => {
       addTag(item, category, (removedItem) => {
         if (removedItem) {
@@ -105,56 +138,36 @@ function initFilters(recipes) {
         }
       });
 
-      const selectedTags = Array.from(document.getElementById("tags").children)
-        .map((tag) => ({
-          item: tag.dataset.item,
-          category: tag.dataset.category,
-        }));
+      const selectedTags = [...DOM.tagsContainer.children].map(tag => ({
+        item: tag.dataset.item,
+        category: tag.dataset.category,
+      }));
 
       const { filteredRecipes } = filterRecipesByItems(selectedTags);
       displayRecipes(filteredRecipes);
       updateDropdownLists(filteredRecipes);
     });
-  };
-
-  setupFilter(ingredients, "ingredientList", "ingredients");
-  setupFilter(appliances, "applianceList", "appliances");
-  setupFilter(ustensils, "ustensilList", "ustensils");
+  });
 }
 
 /**
- * Démarrage de l'application.
+ * Initialise l'application avec chargement optimisé
  */
 async function init() {
   const recipes = await getRecipes();
-
-  // Stocker les recettes pour un accès global
   sessionStorage.setItem("recipesData", JSON.stringify(recipes));
 
-  // Afficher les recettes initiales
-  displayRecipes(recipes);
+  // Initialisation parallèle
+  await Promise.all([
+    displayRecipes(recipes),
+    initSearch(recipes),
+    initFilters(recipes)
+  ]);
 
-  // Initialiser la barre de recherche
-  initSearch(recipes);
-
-  // Initialiser les filtres (ingrédients, appareils et ustensiles)
-  initFilters(recipes);
-
-  // Gérer l'ouverture/fermeture des listes déroulantes
-  toggleDropdown(
-    document.querySelector(".ingredient-filter"),
-    document.getElementById("ingredientDropdown")
-  );
-
-  toggleDropdown(
-    document.querySelector(".appliance-filter"),
-    document.getElementById("applianceDropdown")
-  );
-
-  toggleDropdown(
-    document.querySelector(".ustensil-filter"),
-    document.getElementById("ustensilDropdown")
-  );
+  // Initialiser les dropdowns
+  Object.entries(DOM.dropdowns).forEach(([key, dropdown]) => {
+    toggleDropdown(DOM.filters[key], dropdown);
+  });
 }
 
 init();

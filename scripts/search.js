@@ -1,22 +1,16 @@
 import { searchRecipes } from "./algo.js";
 
+// Cache pour les résultats de recherche
+const searchCache = new Map();
+
 /**
- * Effectue une recherche combinée sur les recettes.
- * La fonction renvoie un tableau de recettes qui contiennent le mot-clé
- * dans le nom, les ingrédients, la description, les appareils ou les ustensiles
- * ET qui contiennent les tags sélectionnés.
- * La fonction prend en argument le mot-clé, les tags sélectionnés, le tableau
- * des recettes, une fonction de callback pour mettre à jour la liste
- * des recettes affichées et une fonction de callback pour mettre à jour
- * les listes déroulantes des filtres.
- * @param {string} keyword - Mot-clé à recherche
- * @param {Object[]} selectedTags - Tableau des tags sélectionnés
- * @param {Object[]} recipes - Tableau des recettes
- * @param {function} displayCallback - Fonction de callback pour mettre à jour
- * la liste des recettes affichées
- * @param {function} updateDropdownCallback - Fonction de callback pour mettre
- * à jour les listes déroulantes des filtres
- * @returns {Object[]} Tableau des recettes qui contiennent le mot-clé et les tags
+ * Effectue une recherche combinée sur les recettes avec mise en cache
+ * @param {string} keyword - Mot-clé à rechercher
+ * @param {Object[]} selectedTags - Tags sélectionnés
+ * @param {Object[]} recipes - Recettes
+ * @param {function} displayCallback - Callback d'affichage
+ * @param {function} updateDropdownCallback - Callback de mise à jour des dropdowns
+ * @returns {Object[]} Recettes filtrées
  */
 export function combinedSearch(
   keyword,
@@ -25,41 +19,75 @@ export function combinedSearch(
   displayCallback,
   updateDropdownCallback
 ) {
-  // Recherche par mot-clé dans les noms, descriptions, ingrédients, appareils, ustensiles
-  const keywordFilteredRecipes =
-    keyword.length >= 3 ? searchRecipes(keyword, recipes) : recipes;
+  const cacheKey = JSON.stringify({ keyword, selectedTags });
+  if (searchCache.has(cacheKey)) {
+    const cachedResults = searchCache.get(cacheKey);
+    if (displayCallback) displayCallback(cachedResults);
+    if (updateDropdownCallback) updateDropdownCallback(cachedResults);
+    return cachedResults;
+  }
 
-  // Filtrage par tags
-  const tagsByCategory = selectedTags.reduce(
-    (acc, { item, category }) => {
-      if (!acc[category]) {
-        acc[category] = []; // Initialiser le tableau pour la catégorie si nécessaire
-      }
-      acc[category].push(item);
-      return acc;
-    },
-    { ingredients: [], appliances: [], ustensils: [] } // Initialisation des catégories
-  );
+  // Recherche par mot-clé optimisée
+  const keywordFilteredRecipes = keyword.length >= 3 
+    ? searchRecipes(keyword, recipes) 
+    : recipes;
 
-  const combinedFilteredRecipes = keywordFilteredRecipes.filter((recipe) => {
-    const matchesIngredients = tagsByCategory.ingredients.every((tag) =>
-      recipe.ingredients.some((ing) => ing.ingredient === tag)
-    );
-
-    const matchesAppliances = tagsByCategory.appliances.every(
-      (tag) => recipe.appliance === tag
-    );
-
-    const matchesUstensils = tagsByCategory.ustensils.every((tag) =>
-      recipe.ustensils.includes(tag)
-    );
-
-    return matchesIngredients && matchesAppliances && matchesUstensils;
+  // Optimisation du filtrage par tags avec Map
+  const tagMap = new Map();
+  selectedTags.forEach(({ item, category }) => {
+    if (!tagMap.has(category)) {
+      tagMap.set(category, new Set());
+    }
+    tagMap.get(category).add(item);
   });
 
-  // Appeler les fonctions de mise à jour
+  // Filtrage optimisé avec Map
+  const combinedFilteredRecipes = keywordFilteredRecipes.filter(recipe => {
+    // Vérification des ingrédients
+    const ingredientTags = tagMap.get('ingredients') || new Set();
+    if (ingredientTags.size > 0) {
+      const recipeIngredients = new Set(
+        recipe.ingredients.map(ing => ing.ingredient)
+      );
+      if (![...ingredientTags].every(tag => recipeIngredients.has(tag))) {
+        return false;
+      }
+    }
+
+    // Vérification des appareils
+    const applianceTags = tagMap.get('appliances') || new Set();
+    if (applianceTags.size > 0 && !applianceTags.has(recipe.appliance)) {
+      return false;
+    }
+
+    // Vérification des ustensiles
+    const ustensilTags = tagMap.get('ustensils') || new Set();
+    if (ustensilTags.size > 0) {
+      const recipeUstensils = new Set(recipe.ustensils);
+      if (![...ustensilTags].every(tag => recipeUstensils.has(tag))) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  // Mise en cache des résultats
+  searchCache.set(cacheKey, combinedFilteredRecipes);
+
+  // Appel des callbacks
   if (displayCallback) displayCallback(combinedFilteredRecipes);
   if (updateDropdownCallback) updateDropdownCallback(combinedFilteredRecipes);
 
   return combinedFilteredRecipes;
 }
+
+// Limiter la taille du cache
+setInterval(() => {
+  if (searchCache.size > 100) {
+    const keys = [...searchCache.keys()];
+    for (let i = 0; i < keys.length - 50; i++) {
+      searchCache.delete(keys[i]);
+    }
+  }
+}, 60000); // Nettoyage toutes les minutes si nécessaire
