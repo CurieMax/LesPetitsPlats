@@ -1,12 +1,8 @@
-import { displayRecipes } from "./index.js";
+
 import { addTag } from "./tag.js";
 
 // Mise en cache des sélecteurs DOM fréquemment utilisés
 const tagsContainer = document.getElementById("tags");
-
-// Récupération des données des recettes depuis sessionStorage
-const recipesData = sessionStorage.getItem("recipesData");
-const recipes = recipesData ? JSON.parse(recipesData) : [];
 
 // Cache pour les résultats de recherche
 const searchCache = new Map();
@@ -18,10 +14,9 @@ const categoryMap = {
   ustensil: "ustensils",
 };
 
-// Générer les listes uniques
-const uniqueIngredients = getUniqueItems(recipes, "ingredients");
-const uniqueAppliances = getUniqueItems(recipes, "appliance");
-const uniqueUstensils = getUniqueItems(recipes, "ustensils");
+let uniqueIngredients = [];
+let uniqueAppliances = [];
+let uniqueUstensils = [];
 
 /**
  * Retourne un tableau d'éléments uniques extraits de la clé `key` des recettes.
@@ -54,6 +49,21 @@ export function getUniqueItems(recipes, key) {
   const result = Array.from(itemsSet).sort();
   searchCache.set(cacheKey, result);
   return result;
+}
+
+/**
+ * Initialise les listes uniques à partir des recettes
+ * @param {Object[]} recipes - Tableau de recettes
+ */
+export function initializeLists(recipes) {
+  uniqueIngredients = getUniqueItems(recipes, "ingredients");
+  uniqueAppliances = getUniqueItems(recipes, "appliance");
+  uniqueUstensils = getUniqueItems(recipes, "ustensils");
+
+  // Initialiser les fonctionnalités de recherche
+  addSearchFunctionality("ingredientSearch", "ingredientList", uniqueIngredients);
+  addSearchFunctionality("applianceSearch", "applianceList", uniqueAppliances);
+  addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 }
 
 /**
@@ -178,33 +188,49 @@ function addSearchFunctionality(inputId, listId, items) {
   });
 }
 
-// Initialiser les fonctionnalités de recherche
-addSearchFunctionality("ingredientSearch", "ingredientList", uniqueIngredients);
-addSearchFunctionality("applianceSearch", "applianceList", uniqueAppliances);
-addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
+/**
+ * Filtre les recettes par tags sélectionnés
+ * @param {Object[]} selectedTags - Tags sélectionnés
+ * @param {Object[]} recipes - Recettes à filtrer
+ * @returns {Object} Recettes filtrées et options restantes
+ */
+export function filterRecipesByItems(selectedTags, recipes) {
+  if (!selectedTags.length) return recipes;
+
+  return recipes.filter(recipe => {
+    return selectedTags.every(({ item, category }) => {
+      const normalizedCategory = categoryMap[category] || category;
+      
+      if (normalizedCategory === "ingredients") {
+        return recipe.ingredients.some(ing => 
+          ing.ingredient.toLowerCase() === item.toLowerCase()
+        );
+      }
+      if (normalizedCategory === "appliances") {
+        return recipe.appliance.toLowerCase() === item.toLowerCase();
+      }
+      if (normalizedCategory === "ustensils") {
+        return recipe.ustensils.some(u => 
+          u.toLowerCase() === item.toLowerCase()
+        );
+      }
+      return false;
+    });
+  });
+}
 
 /**
  * Met à jour les listes déroulantes des filtres
  * @param {Object[]} filteredRecipes - Tableau des recettes filtrées
  */
 export function updateDropdownLists(filteredRecipes) {
-  const remainingOptions = {
-    ingredients: getUniqueItems(filteredRecipes, "ingredients"),
-    appliances: getUniqueItems(filteredRecipes, "appliance"),
-    ustensils: getUniqueItems(filteredRecipes, "ustensils"),
-  };
+  const newIngredients = getUniqueItems(filteredRecipes, "ingredients");
+  const newAppliances = getUniqueItems(filteredRecipes, "appliance");
+  const newUstensils = getUniqueItems(filteredRecipes, "ustensils");
 
-  displayItems(remainingOptions.ingredients, "ingredientList", (ingredient) => {
-    addTag(ingredient, "ingredients", () => {});
-  });
-
-  displayItems(remainingOptions.appliances, "applianceList", (appliance) => {
-    addTag(appliance, "appliances", () => {});
-  });
-
-  displayItems(remainingOptions.ustensils, "ustensilList", (ustensil) => {
-    addTag(ustensil, "ustensils", () => {});
-  });
+  displayItems(newIngredients, "ingredientList", (item) => addTag(item, "ingredient", () => {}));
+  displayItems(newAppliances, "applianceList", (item) => addTag(item, "appliance", () => {}));
+  displayItems(newUstensils, "ustensilList", (item) => addTag(item, "ustensil", () => {}));
 }
 
 /**
@@ -233,54 +259,4 @@ export function toggleDropdown(triggerElement, dropdownElement) {
       dropdownElement.style.display = "none";
     }
   });
-}
-
-/**
- * Filtre les recettes par tags sélectionnés
- * @param {Object[]} selectedTags - Tags sélectionnés
- * @returns {Object} Recettes filtrées et options restantes
- */
-export function filterRecipesByItems(selectedTags) {
-  const cacheKey = JSON.stringify(selectedTags);
-  
-  if (searchCache.has(cacheKey)) {
-    return searchCache.get(cacheKey);
-  }
-
-  const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
-  const tagsByCategory = selectedTags.reduce(
-    (acc, { item, category }) => {
-      acc[category].push(item);
-      return acc;
-    },
-    { ingredients: [], appliances: [], ustensils: [] }
-  );
-
-  const filteredRecipes = recipes.filter((recipe) => {
-    const matchesIngredients = tagsByCategory.ingredients.every((tag) =>
-      recipe.ingredients.some((ing) => ing.ingredient === tag)
-    );
-
-    const matchesAppliances = tagsByCategory.appliances.every(
-      (tag) => recipe.appliance === tag
-    );
-
-    const matchesUstensils = tagsByCategory.ustensils.every((tag) =>
-      recipe.ustensils.includes(tag)
-    );
-
-    return matchesIngredients && matchesAppliances && matchesUstensils;
-  });
-
-  const remainingOptions = {
-    ingredients: getUniqueItems(filteredRecipes, "ingredients"),
-    appliances: getUniqueItems(filteredRecipes, "appliance"),
-    ustensils: getUniqueItems(filteredRecipes, "ustensils"),
-  };
-
-  const result = { filteredRecipes, remainingOptions };
-  searchCache.set(cacheKey, result);
-  
-  displayRecipes(filteredRecipes);
-  return result;
 }

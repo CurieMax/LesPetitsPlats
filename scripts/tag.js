@@ -9,6 +9,16 @@ const CATEGORY_MAP = {
   ustensil: "ustensils",
 };
 
+let currentRecipes = [];
+
+/**
+ * Initialise le module tag avec les recettes
+ * @param {Object[]} recipes - Les recettes
+ */
+export function initializeTagModule(recipes) {
+  currentRecipes = recipes;
+}
+
 /**
  * Normalise une catégorie en fonction de CATEGORY_MAP
  * @param {string} category - La catégorie à normaliser
@@ -27,9 +37,8 @@ function updateResults() {
     category: tag.dataset.category,
   }));
 
-  const recipes = JSON.parse(sessionStorage.getItem("recipesData")) || [];
   const searchQuery = document.querySelector(".search-bar input").value;
-  const filteredRecipes = combinedSearch(searchQuery, selectedTags, recipes);
+  const filteredRecipes = combinedSearch(searchQuery, selectedTags, currentRecipes);
 
   displayRecipes(filteredRecipes);
   updateDropdownLists(filteredRecipes);
@@ -39,10 +48,10 @@ function updateResults() {
  * Crée un élément de tag HTML
  * @param {string} item - L'élément du tag
  * @param {string} category - La catégorie du tag
- * @param {Function} onCloseCallback - Fonction à exécuter lors de la suppression d'un tag
+ * @param {Function} [onCloseCallback] - Fonction optionnelle à exécuter lors de la suppression d'un tag
  * @returns {HTMLElement} - L'élément HTML du tag
  */
-function createTagElement(item, category, onCloseCallback) {
+function createTagElement(item, category, onCloseCallback = () => {}) {
   const tag = document.createElement("div");
   tag.classList.add("tag");
   tag.dataset.item = item;
@@ -65,9 +74,9 @@ function createTagElement(item, category, onCloseCallback) {
  * Ajoute un tag à la liste des tags globaux
  * @param {string} item - Élément à ajouter
  * @param {string} category - Catégorie du tag
- * @param {Function} onCloseCallback - Fonction à exécuter lors de la suppression d'un tag
+ * @param {Function} [onCloseCallback] - Fonction optionnelle à exécuter lors de la suppression d'un tag
  */
-export function addTag(item, category, onCloseCallback) {
+export function addTag(item, category, onCloseCallback = () => {}) {
   const tagContainer = document.getElementById("tags");
 
   // Vérifier si le tag existe déjà
@@ -86,9 +95,9 @@ export function addTag(item, category, onCloseCallback) {
  * Supprime un tag spécifique
  * @param {string} item - Élément à supprimer
  * @param {string} category - Catégorie du tag
- * @param {Function} onUpdateCallback - Fonction exécutée après mise à jour
+ * @param {Function} [onUpdateCallback] - Fonction optionnelle exécutée après mise à jour
  */
-export function removeTag(item, category, onUpdateCallback) {
+export function removeTag(item, category, onUpdateCallback = () => {}) {
   const tagContainer = document.getElementById("tags");
 
   const tag = Array.from(tagContainer.children).find(

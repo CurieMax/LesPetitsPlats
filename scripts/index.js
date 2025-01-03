@@ -1,14 +1,12 @@
 import { recipeTemplate } from "../templates/recipeTemplates.js";
 import { getRecipes } from "../scripts/api.js";
 import {
-  displayItems,
-  getUniqueItems,
-  filterRecipesByItems,
   toggleDropdown,
   updateDropdownLists,
+  initializeLists
 } from "./filter.js";
 import { combinedSearch } from "./search.js";
-import { addTag, removeTag } from "./tag.js";
+import { initializeTagModule } from "./tag.js";
 
 // Cache des éléments DOM fréquemment utilisés
 const DOM = {
@@ -31,6 +29,7 @@ const DOM = {
 
 // Cache pour les templates de recettes
 const recipeTemplateCache = new Map();
+let currentRecipes = [];
 
 /**
  * Met à jour le texte dans filter-text en fonction du nombre de recettes
@@ -49,14 +48,15 @@ function updateFilterText(count, keyword = "") {
 
 /**
  * Crée une carte de recette avec mise en cache
- * @param {Object} recipe - Données de la recette
- * @returns {HTMLElement} Élément DOM de la carte
+ * @param {Object} recipe - Objet recette
+ * @returns {HTMLElement} - Élément HTML de la carte de recette
  */
 function createRecipeCard(recipe) {
   const cacheKey = recipe.id;
   if (recipeTemplateCache.has(cacheKey)) {
     return recipeTemplateCache.get(cacheKey).cloneNode(true);
   }
+
   const card = recipeTemplate(recipe);
   recipeTemplateCache.set(cacheKey, card.cloneNode(true));
   return card;
@@ -66,16 +66,16 @@ function createRecipeCard(recipe) {
  * Affiche les recettes avec optimisation des performances
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
-export async function displayRecipes(recipes) {
+export function displayRecipes(recipes) {
   const fragment = document.createDocumentFragment();
-  recipes.forEach(recipe => {
-    fragment.appendChild(createRecipeCard(recipe));
+  recipes.forEach((recipe) => {
+    const card = createRecipeCard(recipe);
+    fragment.appendChild(card);
   });
 
-  // Une seule manipulation du DOM
   DOM.recipeSection.innerHTML = "";
   DOM.recipeSection.appendChild(fragment);
-  updateFilterText(recipes.length);
+  updateFilterText(recipes.length, DOM.searchInput.value);
 }
 
 /**
@@ -84,32 +84,21 @@ export async function displayRecipes(recipes) {
  */
 function initSearch(recipes) {
   let searchTimeout;
-  let lastKeyword = "";
 
-  DOM.searchInput.addEventListener("input", (event) => {
-    const keyword = event.target.value;
-    if (keyword === lastKeyword) return;
-    lastKeyword = keyword;
-
+  DOM.searchInput.addEventListener("input", (e) => {
     clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      const selectedTags = [...DOM.tagsContainer.querySelectorAll(".tag")]
-        .map(tag => ({
-          item: tag.dataset.item,
-          category: tag.dataset.category,
-        }));
+    const searchQuery = e.target.value;
 
-      combinedSearch(
-        keyword,
-        selectedTags,
-        recipes,
-        (filteredRecipes) => {
-          displayRecipes(filteredRecipes);
-          updateFilterText(filteredRecipes.length, keyword);
-        },
-        updateDropdownLists
-      );
-    }, 150); // Debounce de 150ms
+    searchTimeout = setTimeout(() => {
+      const selectedTags = Array.from(DOM.tagsContainer.children).map((tag) => ({
+        item: tag.dataset.item,
+        category: tag.dataset.category,
+      }));
+
+      const filteredRecipes = combinedSearch(searchQuery, selectedTags, recipes);
+      displayRecipes(filteredRecipes);
+      updateDropdownLists(filteredRecipes);
+    }, 300);
   });
 }
 
@@ -117,36 +106,13 @@ function initSearch(recipes) {
  * Initialise les filtres avec optimisation des performances
  * @param {Object[]} recipes - Tableau d'objets recettes
  */
-function initFilters(recipes) {
-  const filters = [
-    { items: getUniqueItems(recipes, "ingredients"), listId: "ingredientList", category: "ingredients" },
-    { items: getUniqueItems(recipes, "appliance"), listId: "applianceList", category: "appliances" },
-    { items: getUniqueItems(recipes, "ustensils"), listId: "ustensilList", category: "ustensils" }
-  ];
-
-  filters.forEach(({ items, listId, category }) => {
-    displayItems(items, listId, (item) => {
-      addTag(item, category, (removedItem) => {
-        if (removedItem) {
-          removeTag(removedItem, category, (remainingTags) => {
-            if (remainingTags) {
-              const { filteredRecipes } = filterRecipesByItems(remainingTags);
-              displayRecipes(filteredRecipes);
-              updateDropdownLists(filteredRecipes);
-            }
-          });
-        }
-      });
-
-      const selectedTags = [...DOM.tagsContainer.children].map(tag => ({
-        item: tag.dataset.item,
-        category: tag.dataset.category,
-      }));
-
-      const { filteredRecipes } = filterRecipesByItems(selectedTags);
-      displayRecipes(filteredRecipes);
-      updateDropdownLists(filteredRecipes);
-    });
+function initFilters() {
+  // Initialiser les événements de clic pour les dropdowns
+  Object.entries(DOM.filters).forEach(([key, filter]) => {
+    const dropdown = DOM.dropdowns[key];
+    if (filter && dropdown) {
+      toggleDropdown(filter, dropdown);
+    }
   });
 }
 
@@ -154,20 +120,25 @@ function initFilters(recipes) {
  * Initialise l'application avec chargement optimisé
  */
 async function init() {
-  const recipes = await getRecipes();
-  sessionStorage.setItem("recipesData", JSON.stringify(recipes));
-
-  // Initialisation parallèle
-  await Promise.all([
-    displayRecipes(recipes),
-    initSearch(recipes),
-    initFilters(recipes)
-  ]);
-
-  // Initialiser les dropdowns
-  Object.entries(DOM.dropdowns).forEach(([key, dropdown]) => {
-    toggleDropdown(DOM.filters[key], dropdown);
-  });
+  try {
+    currentRecipes = await getRecipes();
+    
+    // Initialiser les modules avec les recettes
+    initializeLists(currentRecipes);
+    initializeTagModule(currentRecipes);
+    
+    // Afficher les recettes initiales
+    displayRecipes(currentRecipes);
+    
+    // Initialiser la recherche et les filtres
+    initSearch(currentRecipes);
+    initFilters(currentRecipes);
+    
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation:", error);
+    DOM.errorMessage.style.display = "flex";
+    DOM.errorMessage.textContent = "Une erreur est survenue lors du chargement des recettes.";
+  }
 }
 
 init();
