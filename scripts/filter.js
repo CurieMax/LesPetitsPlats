@@ -1,11 +1,7 @@
-
 import { addTag } from "./tag.js";
 
 // Mise en cache des sélecteurs DOM fréquemment utilisés
 const tagsContainer = document.getElementById("tags");
-
-// Cache pour les résultats de recherche
-const searchCache = new Map();
 
 // Table de correspondance pour uniformiser les noms des tags
 const categoryMap = {
@@ -28,11 +24,6 @@ export function getUniqueItems(recipes, key) {
   if (!Array.isArray(recipes)) return [];
 
   const itemsSet = new Set();
-  const cacheKey = `${key}_${recipes.length}`;
-  
-  if (searchCache.has(cacheKey)) {
-    return searchCache.get(cacheKey);
-  }
 
   recipes.forEach((recipe) => {
     if (key === "ingredients") {
@@ -46,9 +37,7 @@ export function getUniqueItems(recipes, key) {
     }
   });
 
-  const result = Array.from(itemsSet).sort();
-  searchCache.set(cacheKey, result);
-  return result;
+  return Array.from(itemsSet).sort();
 }
 
 /**
@@ -61,7 +50,11 @@ export function initializeLists(recipes) {
   uniqueUstensils = getUniqueItems(recipes, "ustensils");
 
   // Initialiser les fonctionnalités de recherche
-  addSearchFunctionality("ingredientSearch", "ingredientList", uniqueIngredients);
+  addSearchFunctionality(
+    "ingredientSearch",
+    "ingredientList",
+    uniqueIngredients
+  );
   addSearchFunctionality("applianceSearch", "applianceList", uniqueAppliances);
   addSearchFunctionality("ustensilSearch", "ustensilList", uniqueUstensils);
 }
@@ -98,7 +91,7 @@ export function displayItems(items, listId, onClickCallback) {
   const list = document.getElementById(listId);
   const fragment = document.createDocumentFragment();
   const category = listId.replace("List", "");
-  
+
   if (items.length === 0) {
     const li = document.createElement("li");
     li.textContent = "Aucun résultat trouvé";
@@ -111,8 +104,10 @@ export function displayItems(items, listId, onClickCallback) {
   // Créer une Map des tags existants pour une recherche plus rapide
   const existingTags = new Map(
     [...tagsContainer.children]
-      .filter(tag => tag.dataset.category === (categoryMap[category] || category))
-      .map(tag => [tag.dataset.item, tag])
+      .filter(
+        (tag) => tag.dataset.category === (categoryMap[category] || category)
+      )
+      .map((tag) => [tag.dataset.item, tag])
   );
 
   // Utiliser un fragment pour minimiser les manipulations du DOM
@@ -150,7 +145,7 @@ export function displayItems(items, listId, onClickCallback) {
 }
 
 /**
- * Ajoute la fonctionnalité de recherche avec mise en cache
+ * Ajoute la fonctionnalité de recherche
  * @param {string} inputId - ID du champ de recherche
  * @param {string} listId - ID de la liste HTML
  * @param {string[]} items - Tableau d'éléments à filtrer
@@ -161,20 +156,22 @@ function addSearchFunctionality(inputId, listId, items) {
 
   inputElement.addEventListener("input", (event) => {
     clearTimeout(searchTimeout);
-    
+
     searchTimeout = setTimeout(() => {
       const searchValue = event.target.value.toLowerCase();
-      const cacheKey = `${listId}_${searchValue}`;
 
-      let filteredItems;
-      if (searchCache.has(cacheKey)) {
-        filteredItems = searchCache.get(cacheKey);
-      } else {
-        filteredItems = items.filter(item => 
-          item.toLowerCase().includes(searchValue)
-        );
-        searchCache.set(cacheKey, filteredItems);
-      }
+      // Récupérer les éléments actuellement affichés dans la liste
+      const currentList = document.getElementById(listId);
+      const currentItems = new Set();
+      currentList.querySelectorAll("li").forEach((li) => {
+        const itemText = li.textContent.trim();
+        if (itemText) currentItems.add(itemText);
+      });
+
+      // Filtrer uniquement parmi les éléments actuellement disponibles
+      const filteredItems = Array.from(currentItems).filter((item) =>
+        item.toLowerCase().includes(searchValue)
+      );
 
       displayItems(filteredItems, listId, (selectedItem) => {
         addTag(selectedItem, listId.replace("List", ""), () => {});
@@ -197,21 +194,21 @@ function addSearchFunctionality(inputId, listId, items) {
 export function filterRecipesByItems(selectedTags, recipes) {
   if (!selectedTags.length) return recipes;
 
-  return recipes.filter(recipe => {
+  return recipes.filter((recipe) => {
     return selectedTags.every(({ item, category }) => {
       const normalizedCategory = categoryMap[category] || category;
-      
+
       if (normalizedCategory === "ingredients") {
-        return recipe.ingredients.some(ing => 
-          ing.ingredient.toLowerCase() === item.toLowerCase()
+        return recipe.ingredients.some(
+          (ing) => ing.ingredient.toLowerCase() === item.toLowerCase()
         );
       }
       if (normalizedCategory === "appliances") {
         return recipe.appliance.toLowerCase() === item.toLowerCase();
       }
       if (normalizedCategory === "ustensils") {
-        return recipe.ustensils.some(u => 
-          u.toLowerCase() === item.toLowerCase()
+        return recipe.ustensils.some(
+          (u) => u.toLowerCase() === item.toLowerCase()
         );
       }
       return false;
@@ -228,9 +225,15 @@ export function updateDropdownLists(filteredRecipes) {
   const newAppliances = getUniqueItems(filteredRecipes, "appliance");
   const newUstensils = getUniqueItems(filteredRecipes, "ustensils");
 
-  displayItems(newIngredients, "ingredientList", (item) => addTag(item, "ingredient", () => {}));
-  displayItems(newAppliances, "applianceList", (item) => addTag(item, "appliance", () => {}));
-  displayItems(newUstensils, "ustensilList", (item) => addTag(item, "ustensil", () => {}));
+  displayItems(newIngredients, "ingredientList", (item) =>
+    addTag(item, "ingredient", () => {})
+  );
+  displayItems(newAppliances, "applianceList", (item) =>
+    addTag(item, "appliance", () => {})
+  );
+  displayItems(newUstensils, "ustensilList", (item) =>
+    addTag(item, "ustensil", () => {})
+  );
 }
 
 /**
@@ -240,10 +243,10 @@ export function updateDropdownLists(filteredRecipes) {
  */
 export function toggleDropdown(triggerElement, dropdownElement) {
   const dropdowns = document.querySelectorAll(".dropdown-list");
-  
+
   triggerElement.addEventListener("click", (event) => {
     event.stopPropagation();
-    
+
     dropdowns.forEach((dropdown) => {
       if (dropdown !== dropdownElement) {
         dropdown.style.display = "none";
@@ -255,7 +258,10 @@ export function toggleDropdown(triggerElement, dropdownElement) {
   });
 
   document.addEventListener("click", (event) => {
-    if (!triggerElement.contains(event.target) && !dropdownElement.contains(event.target)) {
+    if (
+      !triggerElement.contains(event.target) &&
+      !dropdownElement.contains(event.target)
+    ) {
       dropdownElement.style.display = "none";
     }
   });

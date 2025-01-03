@@ -28,4 +28,3 @@ export function searchRecipes(keyword, recipes) {
     return false;
   });
 }
-

@@ -3,7 +3,7 @@ import { getRecipes } from "../scripts/api.js";
 import {
   toggleDropdown,
   updateDropdownLists,
-  initializeLists
+  initializeLists,
 } from "./filter.js";
 import { combinedSearch } from "./search.js";
 import { initializeTagModule } from "./tag.js";
@@ -90,12 +90,18 @@ function initSearch(recipes) {
     const searchQuery = e.target.value;
 
     searchTimeout = setTimeout(() => {
-      const selectedTags = Array.from(DOM.tagsContainer.children).map((tag) => ({
-        item: tag.dataset.item,
-        category: tag.dataset.category,
-      }));
+      const selectedTags = Array.from(DOM.tagsContainer.children).map(
+        (tag) => ({
+          item: tag.dataset.item,
+          category: tag.dataset.category,
+        })
+      );
 
-      const filteredRecipes = combinedSearch(searchQuery, selectedTags, recipes);
+      const filteredRecipes = combinedSearch(
+        searchQuery,
+        selectedTags,
+        recipes
+      );
       displayRecipes(filteredRecipes);
       updateDropdownLists(filteredRecipes);
     }, 300);
@@ -120,25 +126,18 @@ function initFilters() {
  * Initialise l'application avec chargement optimisé
  */
 async function init() {
-  try {
-    currentRecipes = await getRecipes();
-    
-    // Initialiser les modules avec les recettes
-    initializeLists(currentRecipes);
-    initializeTagModule(currentRecipes);
-    
-    // Afficher les recettes initiales
-    displayRecipes(currentRecipes);
-    
-    // Initialiser la recherche et les filtres
-    initSearch(currentRecipes);
-    initFilters(currentRecipes);
-    
-  } catch (error) {
-    console.error("Erreur lors de l'initialisation:", error);
-    DOM.errorMessage.style.display = "flex";
-    DOM.errorMessage.textContent = "Une erreur est survenue lors du chargement des recettes.";
-  }
+  currentRecipes = await getRecipes();
+
+  // Initialiser les modules avec les recettes
+  initializeLists(currentRecipes);
+  initializeTagModule(currentRecipes);
+
+  // Afficher les recettes initiales
+  displayRecipes(currentRecipes);
+
+  // Initialiser la recherche et les filtres
+  initSearch(currentRecipes);
+  initFilters(currentRecipes);
 }
 
 init();

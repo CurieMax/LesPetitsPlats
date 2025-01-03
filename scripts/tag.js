@@ -32,13 +32,19 @@ function normalizeCategory(category) {
  * Met à jour les résultats affichés en fonction des tags sélectionnés
  */
 function updateResults() {
-  const selectedTags = Array.from(document.getElementById("tags").children).map((tag) => ({
-    item: tag.dataset.item,
-    category: tag.dataset.category,
-  }));
+  const selectedTags = Array.from(document.getElementById("tags").children).map(
+    (tag) => ({
+      item: tag.dataset.item,
+      category: tag.dataset.category,
+    })
+  );
 
   const searchQuery = document.querySelector(".search-bar input").value;
-  const filteredRecipes = combinedSearch(searchQuery, selectedTags, currentRecipes);
+  const filteredRecipes = combinedSearch(
+    searchQuery,
+    selectedTags,
+    currentRecipes
+  );
 
   displayRecipes(filteredRecipes);
   updateDropdownLists(filteredRecipes);
@@ -80,7 +86,11 @@ export function addTag(item, category, onCloseCallback = () => {}) {
   const tagContainer = document.getElementById("tags");
 
   // Vérifier si le tag existe déjà
-  if (Array.from(tagContainer.children).some((tag) => tag.dataset.item === item && tag.dataset.category === category)) {
+  if (
+    Array.from(tagContainer.children).some(
+      (tag) => tag.dataset.item === item && tag.dataset.category === category
+    )
+  ) {
     return; // Éviter les doublons
   }
 
@@ -131,7 +141,9 @@ export function addDropdownTag(item, category) {
   if (!tagContainer) return;
 
   // Vérifier si le tag existe déjà
-  if (Array.from(tagContainer.children).some((tag) => tag.dataset.item === item)) {
+  if (
+    Array.from(tagContainer.children).some((tag) => tag.dataset.item === item)
+  ) {
     return;
   }
 
@@ -152,7 +164,9 @@ export function removeDropdownTag(item, category) {
   const tagContainer = document.getElementById(`${dropdownCategory}Tags`);
   if (!tagContainer) return;
 
-  const tag = Array.from(tagContainer.children).find((t) => t.textContent.trim() === item);
+  const tag = Array.from(tagContainer.children).find(
+    (t) => t.textContent.trim() === item
+  );
   if (tag) {
     tag.remove();
 
